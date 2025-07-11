@@ -27,13 +27,12 @@ export const register = async (req , res)=> {
 
         const token = jwt.sign({id : user._id}, process.env.JWT_SECRET , {expiresIn: '7d'});
 
-        res.cookie('token' , token , {
-            httpOnly : true ,
-            secure: process.env.NODE_ENV === 'production' ,
-            sameSite: process.env.NODE_ENV === 'production' ? 
-            'none' : 'strict' , 
-            maxAge : 7 * 24 * 60 * 1000
-        });
+        res.cookie('token', token, {
+  httpOnly: true,
+  secure: true, // Requires HTTPS
+  sameSite: 'none', // Required for cross-site cookies
+  maxAge: 7 * 24 * 60 * 60 * 1000
+});
         //Sending Resistration mail
 
         const mailOptions = {
@@ -82,13 +81,12 @@ export const login = async (req , res)=> {
 
            const token = jwt.sign({id : user._id, role: user.role}, process.env.JWT_SECRET , {expiresIn: '7d'}); //ajout de  role: user.role
 
-            res.cookie('token' , token , {
-            httpOnly : true ,
-            secure: process.env.NODE_ENV === 'production' ,
-            sameSite: process.env.NODE_ENV === 'production' ? 
-            'none' : 'strict' , 
-            maxAge : 7 * 24 * 60 * 1000
-        });
+           res.cookie('token', token, {
+  httpOnly: true,
+  secure: true, // Requires HTTPS
+  sameSite: 'none', // Required for cross-site cookies
+  maxAge: 7 * 24 * 60 * 60 * 1000
+});
         user.lastLogin = new Date();
         await user.save();
         return res.json ({ success : true, user:{id: user._id,name: user.name,email: user.email,role: user.role}}) ;

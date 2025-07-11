@@ -41,7 +41,7 @@ dotenv.config();
 const server = http.createServer(app); // Pour socket.io
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:5173'],
+    origin: allowedOrigins,
     credentials: true
   }
 });
@@ -52,13 +52,40 @@ const port = process.env.PORT || 4005;
 app.use('/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({ origin: ['http://localhost:5173'], credentials: true }));
+const allowedOrigins = [
+  'http://localhost:5173',
+  process.env.FRONTEND_URL, // Add your production frontend URL
+  'https://localhost:5173.onrender.com' // Your actual frontend URL
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 
-const __dirname = path.resolve();
-app.use(express.static(path.join(__dirname , '/client/dist')));
-app.get('*', (req, res) => res.sendFile(path.join(__dirname , '/client/dist/index.html')));
+// API routes first
+// ... all your existing API routes ...
+
+// Then static files
+app.use('/uploads', express.static('uploads'));
+
+// Serve frontend in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'client/dist')));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client/dist', 'index.html'));
+  });
+}
 
 // Routes API
 app.get('/', (req, res) => res.send("API Working"));
