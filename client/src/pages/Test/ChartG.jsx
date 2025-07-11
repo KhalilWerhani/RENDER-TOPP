@@ -4,7 +4,7 @@ import { assets } from '../../assets/assets';
 import { FiSmartphone, FiCode, FiLayout, FiImage } from 'react-icons/fi';
 import { FaHandsHelping, FaRocket, FaClock, FaLightbulb, FaShieldAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import './chart.css'
+import './Chart.css'
 
 const benefits = [
   { icon: <FaHandsHelping className="text-blue-600 text-3xl" />, title: "Accompagnement humain", description: "Notre équipe vous suit à chaque étape, par visio, téléphone ou e-mail.", ml: "0" },
