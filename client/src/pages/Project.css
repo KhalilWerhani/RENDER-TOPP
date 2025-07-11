@@ -1,0 +1,36 @@
+/* Project.css */
+
+@keyframes bounceSlow {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-15px);
+    }
+  }
+  
+  .bounce-slow {
+    animation: bounceSlow 3s ease-in-out infinite;
+  }
+  
+  @keyframes blobPulse {
+    0%, 100% {
+      transform: scale(1) translate(0, 0);
+    }
+    50% {
+      transform: scale(1.1) translate(10px, 10px);
+    }
+  }
+  
+  .blob {
+    animation: blobPulse 1s ease-in-out infinite;
+    filter: blur(40px);
+    opacity: 0.1;
+    mix-blend-mode: multiply;
+    border-radius: 50%;
+    position: absolute;
+    z-index: 2;
+  }
+  
+
+  

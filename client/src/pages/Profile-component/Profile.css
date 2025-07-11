@@ -1,0 +1,12 @@
+
+.form-element{
+    width: 50% ;
+}
+
+.form-element input{
+    width: 90% ;
+}
+
+.form-element input{
+    background-color: rgba(174, 179, 179, 0.122) !important;
+}
