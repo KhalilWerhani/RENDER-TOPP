@@ -91,7 +91,7 @@ const Project = () => {
     const fetchAllDossiers = async () => {
       try {
         const { data } = await axios.get(`${backendUrl}/api/dossier/user/all`, { withCredentials: true });
-        setDossiers(data.dossiers);
+       setDossiers(Array.isArray(data.dossiers) ? data.dossiers : []);
       } catch (err) {
         toast.error("Erreur lors du chargement des projets");
         console.error(err);
@@ -99,6 +99,19 @@ const Project = () => {
         setLoading(false);
       }
     };
+
+    const filteredDossiers = (Array.isArray(dossiers) ? dossiers : []).filter(dossier => {
+  const matchesStatus = selectedStatus === "all" || dossier.statut === selectedStatus;
+
+  const dossierType = dossier.type ? dossier.type.toLowerCase() : '';
+  const boName = dossier.boAffecte?.name ? dossier.boAffecte.name.toLowerCase() : '';
+  const searchTermLower = searchTerm.toLowerCase();
+
+  const matchesSearch = dossierType.includes(searchTermLower) ||
+                        boName.includes(searchTermLower);
+
+  return matchesStatus && matchesSearch;
+});
 
     fetchAllDossiers();
   }, [backendUrl]);

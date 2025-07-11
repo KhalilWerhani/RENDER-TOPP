@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState , useContext } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { AppContent } from '../../context/AppContext';
 
 const ContactForm = () => {
   const [nom, setNom] = useState('');

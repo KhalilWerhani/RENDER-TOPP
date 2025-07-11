@@ -15,7 +15,8 @@ const COLORS = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
 
 const DashboardUser = () => {
   const { backendUrl, userData } = useContext(AppContent);
-  const [demarches, setDemarches] = useState([]);
+  const [demarches, setDemarches] = useState([]); 
+
   const [isNavigating, setIsNavigating] = useState(false);
   const adminId = import.meta.env.VITE_ADMIN_USER_ID;
 
@@ -90,15 +91,29 @@ const DashboardUser = () => {
     };
 
     const fetchDemarches = async () => {
-      try {
-        const { data } = await axios.get(`${backendUrl}/api/user/data`, { withCredentials: true });
-        const userId = data?.userData?.id;
-        const res = await axios.get(`${backendUrl}/api/progress/user/${userId}`);
-        setDemarches(res.data);
-      } catch (err) {
-        console.error("Erreur lors de la récupération des démarches :", err.message);
-      }
-    };
+  try {
+    const { data } = await axios.get(`${backendUrl}/api/user/data`, { withCredentials: true });
+    const userId = data?.userData?.id;
+    const res = await axios.get(`${backendUrl}/api/progress/user/${userId}`);
+
+    // Ensure res.data is an array before setting it
+    if (Array.isArray(res.data)) {
+      setDemarches(res.data);
+    } else if (res.data && typeof res.data === 'object') {
+      // If it's an object, maybe the array is nested inside, adjust accordingly
+      // Example: setDemarches(res.data.demarches || []);
+      setDemarches([]);
+      console.warn('Expected an array for demarches but got an object:', res.data);
+    } else {
+      setDemarches([]);
+      console.warn('Demarches data is not an array:', res.data);
+    }
+  } catch (err) {
+    console.error("Erreur lors de la récupération des démarches :", err.message);
+    setDemarches([]); // Fallback to empty array on error
+  }
+};
+
 
     const checkProgress = async () => {
       try {
