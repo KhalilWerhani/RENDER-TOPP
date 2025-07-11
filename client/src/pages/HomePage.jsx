@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
 import illustraImage from "../assets/illustra.png"; // Adjust the file extension if necessary
 import WhyTop from "./WhyTop";
-import '../components/HomePage.css';
+import '../components/Homepage.css';
 import DocumentModels from "./DocumentModels";
 import ContactForm from "./user/ContactForm";
 
