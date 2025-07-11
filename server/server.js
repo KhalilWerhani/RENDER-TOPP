@@ -5,17 +5,17 @@ import 'dotenv/config';
 import cookieParser from "cookie-parser";
 import connectDB from './config/mongodb.js';
 import path from "path";
-import multer from 'multer';
-import http from 'http'; // 👈 pour socket.io
+import http from 'http';
 import { Server } from 'socket.io';
-// Routes
+import dotenv from 'dotenv';
+
+// Import routes
 import authRouter from './routes/authRoutes.js';
 import userRouter from "./routes/userRoutes.js";
 import adminRoutes from './routes/adminRoutes.js';
 import entrepriseRoutes from './routes/entrepriseRoutes.js';
 import dossierRouter from "./routes/dossierRoutes.js";
 import paiementRoutes from './routes/paiementRoutes.js';
-//import uploadRoutes from './routes/uploadRoutes.js';
 import statistiquesRoutes from "./routes/statistiques.js";
 import modificationRoutes from './routes/ModificationRoutes.js';
 import fermetureRoutes from './routes/dossierFermetureRoutes.js';
@@ -30,37 +30,24 @@ import adminStatsRouter from "./routes/adminStatsRoutes.js";
 import fileRoutes from "./routes/fileRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
 import leadRoutes from './routes/leadRoutes.js';
-import dotenv from 'dotenv';
 
-//import datadocumentRoutes from "./routes/datadocumentRoutes.js"
-
-// Initialize app first
-// App setup
+// Initialize app
 const app = express();
 dotenv.config();
-const server = http.createServer(app); // Pour socket.io
-const io = new Server(server, {
-  cors: {
-    origin: allowedOrigins,
-    credentials: true
-  }
-});
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-const port = process.env.PORT || 4005;
 
-// Middleware
+// CORS configuration
+const allowedOrigins = [
+  'http://localhost:5173',
+  process.env.FRONTEND_URL,
+  'https://render-top-juridiquea-6.onrender.com'
+];
+
+// Middleware setup
 app.use('/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json());
 app.use(cookieParser());
-const allowedOrigins = [
-  'http://localhost:5173',
-  process.env.FRONTEND_URL, // Add your production frontend URL
-  'https://localhost:5173.onrender.com' // Your actual frontend URL
-];
-
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
@@ -72,29 +59,19 @@ app.use(cors({
 }));
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
+// Socket.io setup
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: allowedOrigins,
+    credentials: true
+  }
+});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const port = process.env.PORT || 4005;
 
-// API routes first
-// ... all your existing API routes ...
-
-// Then static files
-app.use('/uploads', express.static('uploads'));
-
-// Serve frontend in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'client/dist')));
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client/dist', 'index.html'));
-  });
-}
-
-// Routes API
+// API routes
 app.get('/', (req, res) => res.send("API Working"));
-app.use('/uploads', express.static('public/uploading'));
-
-/*app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')), uploadRoutes);
-app.use('/upload', express.static(path.join(process.cwd(), 'public', 'upload')), uploadRoutes);  //workingfine
-app.use('/api/upload', express.static(path.join(process.cwd(), 'public', 'upload')) ,uploadRoutes); */
-//app.use("/api/documents", datadocumentRoutes);
 app.use('/api/auth', authRouter);
 app.use('/api/user', userRouter);
 app.use('/api/admin', adminRoutes);
@@ -105,46 +82,40 @@ app.use('/api/dossiers/fermetures', fermetureRoutes);
 app.use('/api/dossier', dossierRouter);
 app.use('/api/dossiers', dossierRouter);
 app.use('/api/notifications', notificationRoutes);
-app.use('/api', dossierRouter);
-app.use('/api', modificationRoutes);
-app.use('/api', fermetureRoutes);
 app.use("/api/feedback", ratingRoutes);
 app.use('/api/paiement', paiementRoutes);
 app.use('/api/bo', boRoutes);
 app.use('/api/statistiques', statistiquesRoutes);
-app.use('/api/gerer', statistiquesRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/appointments', appointmentsRoutes);
-app.use('/api/paiement', paiementRoutes);
-app.use("/api/bo", boRoutes);
-app.use("/api/statistiques", statistiquesRoutes);
-app.use("/api/gerer", statistiquesRoutes);
-app.use('/api/modification', modificationRoutes);
-app.use('/api/dossiers/fermetures', fermetureRoutes);
-app.use('/api/fermeture', fermetureRoutes);
-app.use('/api', fermetureRoutes);
-app.use('/api', demarcheRoutes);
 app.use('/api/messages', messageRoutes);
-app.use('/api/contact',contactRoutes)
-app.use('/api/leads', leadRoutes); 
+app.use('/api/contact', contactRoutes);
+app.use('/api/leads', leadRoutes);
 app.use('/api/files', fileRoutes);
 
+// Serve frontend in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(process.cwd(), 'client/dist')));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(process.cwd(), 'client/dist', 'index.html'));
+  });
+}
 
-app.get("/api/socket/status/:userId", (req, res) => {
-  const userId = req.params.userId;
-  const isOnline = connectedUsers.has(userId);
-  res.json({ online: isOnline });
+// Request logger
+app.use((req, res, next) => {
+  console.log(`Incoming request: ${req.method} ${req.url}`);
+  next();
 });
 
-// Socket.IO - Messagerie en temps réel
+// Socket.IO setup
 const connectedUsers = new Map();
 
 io.on("connection", (socket) => {
-  console.log("✅ Socket connecté :", socket.id);
+  console.log("✅ Socket connected:", socket.id);
 
   socket.on("register", (userId) => {
     connectedUsers.set(userId, socket.id);
-    console.log(`🔗 Utilisateur ${userId} enregistré`);
+    console.log(`🔗 User ${userId} registered`);
   });
 
   socket.on("sendMessage", ({ senderId, receiverId, content }) => {
@@ -165,14 +136,21 @@ io.on("connection", (socket) => {
         break;
       }
     }
-    console.log("❌ Déconnexion socket :", socket.id);
+    console.log("❌ Socket disconnected:", socket.id);
   });
 });
 
-// Connexion base de données
-connectDB();
+// Database connection and server start
+connectDB()
+  .then(() => {
+    server.listen(port, () => {
+      console.log(`🚀 Server started on PORT: ${port}`);
+      console.log(`Allowed origins: ${allowedOrigins.join(', ')}`);
+    });
+  })
+  .catch(err => {
+    console.error("Database connection failed:", err);
+    process.exit(1);
+  });
 
-// Lancement serveur
-server.listen(port, () => console.log(`🚀 Server started on PORT: ${port}`));
-
-export { io,connectedUsers  };
+export { io, connectedUsers };
