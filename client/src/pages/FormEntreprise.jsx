@@ -233,7 +233,7 @@ const handleUpload = async (e) => {
   const toastId = toast.loading("Téléversement du document en cours...");
   try {
     setDownloadInProgress(true);
-    const res = await axios.post('http://localhost:5173/api/files/upload', formData);
+    const res = await axios.post(`${backendUrl}/api/files/upload`, formData);
 
     toast.update(toastId, {
       render: "Document téléversé avec succès!",
