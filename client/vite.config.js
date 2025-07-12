@@ -11,7 +11,7 @@ export default defineConfig({
   ],
    server: {
     proxy: {
-      '/api': 'https://render-top-juridiquea-6.onrender.com', // Port de ton backend
+      'api': 'http://localhost:4005', // Port de ton backend
     }
   }
 })
