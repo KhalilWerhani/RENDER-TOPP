@@ -72,7 +72,15 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const port = process.env.PORT || 4005;
 
 // API routes
-app.get('/', (req, res) => res.send("API Working"));
+app.get('/', (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    // In production, redirect to the frontend's homepage
+    res.redirect('/');
+  } else {
+    // In development, you might want to keep the API message or redirect
+    res.send("API Working - Redirect to homepage in production");
+  }
+});
 app.use('/api/auth', authRouter);
 app.use('/api/user', userRouter);
 app.use('/api/admin', adminRoutes);

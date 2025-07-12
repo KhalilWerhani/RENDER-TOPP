@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState , useContext } from 'react';
 import axios from 'axios';
 import { FaFolderOpen, FaSearch, FaFilter, FaCalendarAlt, FaSpinner, FaChartBar } from "react-icons/fa";
 import { RiFolderReceivedFill } from "react-icons/ri";
 import { BsFolderCheck, BsFolderSymlink } from "react-icons/bs";
 import { assets } from '../../assets/assets';
+import { AppContent } from '../../context/AppContext';
 
 const DossiersBO = () => {
   const [dossiers, setDossiers] = useState([]);

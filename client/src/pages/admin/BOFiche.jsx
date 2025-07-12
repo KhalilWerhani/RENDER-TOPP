@@ -7,6 +7,8 @@ import { FiArrowLeft, FiMail, FiPhone, FiMapPin, FiCreditCard, FiKey, FiCalendar
 import { MdOutlineVerified } from 'react-icons/md';
 import { RiPassportLine } from 'react-icons/ri';
 import { IoPersonCircleOutline } from 'react-icons/io5';
+import { AppContent } from '../context/AppContext';
+
 
 const BOFiche = () => {
   const { id } = useParams();

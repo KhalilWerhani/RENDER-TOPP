@@ -19,6 +19,8 @@ import {
   FiDownload,
   FiPrinter
 } from "react-icons/fi";
+import { AppContent } from '../context/AppContext';
+
 
 // Enhanced status config with refined color palette
 const statusConfig = {

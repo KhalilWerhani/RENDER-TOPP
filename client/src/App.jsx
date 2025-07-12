@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route , Navigate  } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
 
@@ -135,8 +135,9 @@ const App = () => {
 
 
         {/* 🔓 Public routes */}
+        <Route path="/" element={<Navigate to="/home" replace />} />
+        <Route path='/home' element={<Home />} />
         <Route path='/login' element={<Login />} />
-        <Route path='/' element={<Home />} />
         <Route path='/email-verify' element={<EmailVerify />} />
         <Route path='/reset-password' element={<ResetPassword />} />
         <Route path='/form-project' element={<FormProject />} />

@@ -16,6 +16,8 @@ import {
 import { RiFolderReceivedFill } from "react-icons/ri";
 import { BsFolderCheck, BsFolderSymlink } from "react-icons/bs";
 import { assets } from "../../assets/assets";
+import { AppContent } from '../context/AppContext';
+
 
 const ListeProjetsBo = () => {
   const { boId } = useParams();

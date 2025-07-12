@@ -2,6 +2,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState , useContext } from "react";
 import axios from "axios";
 import { Folder, ChevronRight, Clock, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { AppContent } from '../context/AppContext';
+
 
 const ListeProjetsClient = () => {
   const { clientId } = useParams();
@@ -9,6 +11,7 @@ const ListeProjetsClient = () => {
   const [projets, setProjets] = useState([]);
   const [selectedType, setSelectedType] = useState("Création");
   const [loading, setLoading] = useState(true);
+  
   const { backendUrl } = useContext(AppContent);
 
   

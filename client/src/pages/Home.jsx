@@ -6,10 +6,14 @@ import LoadingPage from '../components/LoadingPage';
 import { AppContent } from '../context/AppContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+
 
 const Home = () => {
   const [loading, setLoading] = useState(true);
   const { userData, setuserData, backendUrl } = useContext(AppContent);
+  const navigate = useNavigate();
+
 
   const getUserData = async () => {
     try {
@@ -31,11 +35,15 @@ const Home = () => {
     }
   };
 
-  useEffect(() => {
+    useEffect(() => {
     getUserData();
-    const timer = setTimeout(() => setLoading(false), 2000);
+    const timer = setTimeout(() => {
+      setLoading(false);
+      navigate('/home'); // Redirect after loading
+    }, 2000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [navigate]);
+
 
   if (loading) return <LoadingPage />;
 
