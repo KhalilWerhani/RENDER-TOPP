@@ -2,8 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState , useContext } from "react";
 import axios from "axios";
 import { Folder, ChevronRight, Clock, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
-import { AppContent } from '../context/AppContext';
-
+import { AppContent } from "../../context/AppContext";
 
 const ListeProjetsClient = () => {
   const { clientId } = useParams();
