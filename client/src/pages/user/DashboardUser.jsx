@@ -93,7 +93,7 @@ const DashboardUser = () => {
     const fetchDemarches = async () => {
   try {
     const { data } = await axios.get(`${backendUrl}/api/user/data`, { withCredentials: true });
-    const userId = data?.userData?.id;
+    const userId = data?.userData?.id || data?.userData?._id;
     const res = await axios.get(`${backendUrl}/api/progress/user/${userId}`);
 
     // Ensure res.data is an array before setting it
@@ -235,7 +235,7 @@ const DashboardUser = () => {
     try {
       await axios.post(`${backendUrl}/api/feedback/rating`, {
         rating,
-        userId: userData?.id
+        userId: userData?.id || userData?._id
       }, { withCredentials: true });
       toast.success("Merci pour votre évaluation !");
       setHasRated(true);
@@ -300,7 +300,7 @@ const DashboardUser = () => {
           date: selectedDate,
           time: selectedTime,
           expertId: expert?._id,
-          userId: userData?.id,
+          userId: userData?.id || userData?._id,
           name: appointmentDetails.name,
           email: appointmentDetails.email,
           subject: appointmentDetails.subject,
