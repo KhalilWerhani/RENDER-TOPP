@@ -316,20 +316,20 @@ export const getDossierFiles = async (req, res) => {
     let dossier = await Dossier.findOne({ 
       _id: id, 
       user: userId 
-    }).populate('fichiers');
+    }).populate('fichiers',  'filename url');
 
     if (!dossier) {
       dossier = await DossierModification.findOne({ 
         _id: id, 
         user: userId 
-      }).populate('fichiers');
+      }).populate('fichiers',  'filename url');
     }
 
     if (!dossier) {
       dossier = await DossierFermeture.findOne({ 
         _id: id, 
         user: userId 
-      }).populate('fichiers');
+      }).populate('fichiers','filename url');
     }
 
     if (!dossier) {

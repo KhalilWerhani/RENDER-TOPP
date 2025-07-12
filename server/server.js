@@ -75,7 +75,7 @@ const port = process.env.PORT || 4005;
 app.get('/', (req, res) => {
   if (process.env.NODE_ENV === 'production') {
     // In production, redirect to the frontend's homepage
-    res.redirect('/');
+    res.redirect('/home');
   } else {
     // In development, you might want to keep the API message or redirect
     res.send("API Working - Redirect to homepage in production");

@@ -13,15 +13,28 @@ import {
   Chip,
   Box,
   Divider,
-  Paper
+  Paper,
+  IconButton
 } from '@mui/material';
 import {
   Description as DescriptionIcon,
-  Close as CloseIcon
+  Close as CloseIcon,
+  Download as DownloadIcon
 } from '@mui/icons-material';
 import { AppContent } from '../../context/AppContext';
+
 const FileViewerModalUser = ({ open, onClose, dossier, backendUrl }) => {
   if (!dossier) return null;
+
+  // Function to construct the correct file URL
+  const getFileUrl = (file) => {
+    // If the file already has a full URL, use that
+    if (file.url) return file.url;
+    
+    // Otherwise construct from path (ensure path doesn't start with a slash)
+    const cleanPath = file.path.startsWith('/') ? file.path.substring(1) : file.path;
+    return `${backendUrl}/${cleanPath}`;
+  };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -72,7 +85,19 @@ const FileViewerModalUser = ({ open, onClose, dossier, backendUrl }) => {
           <Paper variant="outlined" sx={{ p: 2 }}>
             <List>
               {dossier.fichiers.map((file, index) => (
-                <ListItem key={index}>
+                <ListItem 
+                  key={index}
+                  secondaryAction={
+                    <IconButton 
+                      edge="end" 
+                      href={getFileUrl(file)}
+                      target="_blank"
+                      download
+                    >
+                      <DownloadIcon />
+                    </IconButton>
+                  }
+                >
                   <ListItemIcon>
                     <DescriptionIcon />
                   </ListItemIcon>
@@ -80,15 +105,6 @@ const FileViewerModalUser = ({ open, onClose, dossier, backendUrl }) => {
                     primary={file.filename} 
                     secondary={`${(file.size / 1024).toFixed(2)} KB`} 
                   />
-                  <Button 
-                    href={`${backendUrl}/${file.path}`} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    variant="outlined"
-                    size="small"
-                  >
-                    Télécharger
-                  </Button>
                 </ListItem>
               ))}
             </List>
