@@ -39,7 +39,8 @@ dotenv.config();
 const allowedOrigins = [
   'http://localhost:5173',
   process.env.FRONTEND_URL,
-  'https://render-top-juridiquea-6.onrender.com'
+  'https://render-top-juridiquea-6.onrender.com',
+  '*'
 ];
 
 // Middleware setup
