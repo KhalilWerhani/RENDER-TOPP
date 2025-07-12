@@ -93,6 +93,7 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/leads', leadRoutes);
 app.use('/api/files', fileRoutes);
+app.use('/api/progress', demarcheRoutes)
 
 // Serve frontend in production
 if (process.env.NODE_ENV === 'production') {
