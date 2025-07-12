@@ -84,6 +84,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRouter);
 app.use('/api/user', userRouter);
 app.use('/api/admin', adminRoutes);
+app.use('/api', dossierRouter);
 app.use('/api/admin/stats', adminStatsRouter);
 app.use('/api/entreprise', entrepriseRoutes);
 app.use('/api/modification', modificationRoutes);
