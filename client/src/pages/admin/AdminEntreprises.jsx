@@ -185,7 +185,7 @@ const handleUpdateStatus = async (dossier) => {
     } else if (dossier.type === 'Fermeture') {
       url = `/api/fermeture/${dossier._id}/update-status`;
     } else {
-      url = `/api/dossiers/modifications/${dossier._id}/update-status`;
+      url = `/api/modification/${dossier._id}/update-status`;
     }
     
     const response = await axios.put(url, payload);

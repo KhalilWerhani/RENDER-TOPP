@@ -37,7 +37,7 @@ router.post('/upload-document-modification',
 );
 
 
-router.get('/modifications/:id', async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const modification = await DossierModification.findById(req.params.id)
       .populate('user', 'name email')           // récupère name et email du client

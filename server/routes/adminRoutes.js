@@ -46,8 +46,8 @@ adminRouter.get("/dossiers/bo/:boId", userAuth, verifyAdmin, getDossiersByBO);
 // New routes for dossier management
 adminRouter.get("/combined-dossiers", userAuth, verifyAdmin, getCombinedDossiers);
 adminRouter.put("/dossiers/:id/update-status", userAuth, verifyAdmin, updateDossier);
-adminRouter.put("/modifications/:id/update-status", userAuth, verifyAdmin, updateModification);
-adminRouter.put("/fermetures/:id/update-status", userAuth, verifyAdmin, updateFermeture);
+adminRouter.put("/modification/:id/update-status", userAuth, verifyAdmin, updateModification);
+adminRouter.put("/fermeture/:id/update-status", userAuth, verifyAdmin, updateFermeture);
 adminRouter.put("/dossiers/:id", userAuth, verifyAdmin, updateDossier);
 adminRouter.put("/modifications/:id", userAuth, verifyAdmin, updateModification);
 adminRouter.put("/fermetures/:id", userAuth, verifyAdmin, updateFermeture);
