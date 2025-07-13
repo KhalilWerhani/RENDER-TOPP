@@ -71,7 +71,7 @@ import TransformationSarlEnSas from './pages/Gerer-Entreprises/TransformationSar
 import TransformationSasEnSarl from './pages/Gerer-Entreprises/TransformationSasEnSarl';
 import FermerSociete from './pages/Gerer-Entreprises/FermerSociete';
 import PageModificationWrapper from './components/PageModificationWrapper';
-
+import CentreDaide from './pages/CentreDaide';
 
 import DashboardUser from './pages/user/DashboardUser';
 import FormSas from './pages/Type-Entreprises/FormSas';
@@ -350,6 +350,10 @@ const App = () => {
             <Route path="/dashboard/uploadingdoc" element={<UploadDocument />} />
             <Route path="/dashboard/documentsrece" element={<ReceivedDocuments />} />
             <Route path="/dashboard/userentreprise" element={<UserEntreprise />} />
+            <Route path="/dashboard/centredaide" element={<CentreDaide />} />
+
+
+            
 
             
 

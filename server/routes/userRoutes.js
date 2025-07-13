@@ -22,10 +22,8 @@ userRouter.delete('/delete/:userId', userAuth, deleteUser);
 userRouter.get('/all', userAuth, getAllUsers);
 
 userRouter.get('/stats',userAuth , getUserStats);
-
-userRouter.get('/stats', getUserStats);
+//userRouter.get('/stats', getUserStats);
 userRouter.get("/get-by-id/:id", getUserById); // ✅ /api/user/get-by-id/:id
-
 
 userRouter.get('/currentUser/:userId', userAuth, getCurrentUser);
 userRouter.put('/update/:userId',userAuth, verifyAdmin, adminUpdateUser);
