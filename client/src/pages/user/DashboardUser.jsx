@@ -606,7 +606,7 @@ const DashboardUser = () => {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between bg-white shadow-md rounded-lg p-6">
   <div>
     <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
-      Bonjour, <span className="text-indigo-600">{userData?.name}</span>
+      Bonjour, <span className="text-blue-800">{userData?.name}</span>
     </h1>
     <p className="text-gray-600 mt-2 text-lg">
       Aperçu de vos activités et démarches
@@ -894,21 +894,7 @@ const DashboardUser = () => {
           )}
         </div>
 
-
-
-        {/* Expert Card */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <div className="flex flex-col md:flex-row items-center">
-            <div className="md:w-1/4 flex justify-center mb-4 md:mb-0">
-              <img
-                src={assets.person_icon}
-                alt="Expert"
-                className="w-32 h-32 rounded-full border-4 border-indigo-100"
-              />
-            </div>
-            
-          </div>
-        </div>
+       
 
       </div>
     </div>

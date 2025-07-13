@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { assets } from '../assets/assets';
 
 const categories = [
   {
@@ -72,12 +73,12 @@ const CentreDaide = () => {
         maxWidth: 960,
         margin: '0 auto',
       }}
-      aria-label="Centre d'Aide TOP-JURIDIQUE"
+      aria-label="Centre d'aide TOP-JURIDIQUE"
     >
       {/* En-tête */}
       <header style={{ marginBottom: '2rem', textAlign: 'center' }}>
         <h1 style={{ color: '#1e40af', fontSize: '2.5rem', marginBottom: '0.5rem' }}>
-          Centre d'Aide TOP-JURIDIQUE
+          Centre d'aide TOP-JURIDIQUE
         </h1>
         <p style={{ fontSize: '1.125rem', color: '#333' }}>
           Toutes vos démarches et formalismes simplifiés pour la création et la gestion d’entreprise.
@@ -262,23 +263,23 @@ const CentreDaide = () => {
           Pour toute question ou assistance dans vos démarches, contactez-nous :
         </p>
         <p style={{ fontSize: '1rem', marginBottom: '0.25rem' }}>
-          📞{' '}
+          <img src={assets.phone_icon} alt="phone-icon" />{' '}
           <a
-            href="tel:+33123456789"
+            href="tel:+0176390060"
             style={{ color: '#f4d47c', textDecoration: 'none', fontWeight: '600' }}
             aria-label="Téléphone du support TOP-JURIDIQUE"
           >
-            +33 1 23 45 67 89
+            +33 01 76 39 00 60
           </a>
         </p>
         <p style={{ fontSize: '1rem' }}>
           ✉️{' '}
           <a
-            href="mailto:support@top-juridique.fr"
+            href="mailto:contact@top-juridique.fr"
             style={{ color: '#f4d47c', textDecoration: 'none', fontWeight: '600' }}
             aria-label="Email du support TOP-JURIDIQUE"
           >
-            support@top-juridique.fr
+            contact@top-juridique.fr
           </a>
         </p>
       </section>

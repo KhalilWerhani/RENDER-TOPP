@@ -103,7 +103,7 @@ const FileViewerModalUser = ({ open, onClose, dossier, backendUrl }) => {
                   </ListItemIcon>
                   <ListItemText 
                     primary={file.filename} 
-                    secondary={`${(file.size / 1024).toFixed(2)} KB`} 
+                    
                   />
                 </ListItem>
               ))}

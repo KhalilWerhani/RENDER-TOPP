@@ -29,7 +29,7 @@ const AsideBarUser = ({ isOpen, setIsOpen }) => {
    // { icon: <FaChartLine size={18} />, label: 'Comptabilité', path: '/dashboard/comptabilite' },
     { icon: <FaEnvelopeOpenText size={18} />, label: 'Projets', path: '/dashboard/projets' },
     { icon: <FaFileAlt size={18} />, label: 'Documents Reçus', path: '/dashboard/documentsrece' },
-    { icon: <FaFileAlt size={18} />, label: "Centre d'aide", path: '/dashboard/documentsrece' },
+    { icon: <FaFileAlt size={18} />, label: "Centre d'aide", path: '/dashboard/centredaide' },
 
     
    // { icon: <FaFileAlt size={18} />, label: 'Messagerie', path: '/dashboard/documentsrece' },
