@@ -66,9 +66,7 @@ const SidebarAdmin = ({ isOpen, setIsOpen }) => {
             <li onClick={() => navigate("/admin/envoyer-document")} className={`${baseClass} ${isActive("/admin/envoyer-document") ? activeClass : inactiveClass}`}>
               <FaFileAlt size={18} /> Model
             </li>
-            <li onClick={() => navigate("/admin/documentsadmin")} className={`${baseClass} ${isActive("/admin/documentsadmin") ? activeClass : inactiveClass}`}>
-              <FaFileAlt size={18} /> Centre d'aide
-            </li>
+            
           </ul>
         </div>
       </div>

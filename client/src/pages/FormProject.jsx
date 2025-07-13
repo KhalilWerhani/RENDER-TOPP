@@ -39,7 +39,7 @@ const FormProject = () => {
     {
       title: "Choisir le type d'entreprise",
       content: (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ">
           {entrepriseTypes.map((item, index) => (
             <div
               key={index}
@@ -365,7 +365,7 @@ const FormProject = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           {/* Progress Header */}
-          <div className="mb-8">
+          <div className="mb-4 mt-4">
             <div className="flex justify-between items-center mb-2">
               <h1 className="text-xl font-semibold text-gray-900">Création d'entreprise</h1>
               <span className="text-sm text-gray-500">

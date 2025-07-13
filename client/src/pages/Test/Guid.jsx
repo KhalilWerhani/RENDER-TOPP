@@ -47,7 +47,7 @@ const Guid = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-blue-100 p-10">
+    <div className="min-h-screen bg-white p-10">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-4xl font-bold text-blue-700 mb-8 text-center">Tout ce que vous devez savoir sur la SARL</h1>
 
