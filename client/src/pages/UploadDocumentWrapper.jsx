@@ -1,199 +1,291 @@
-import React, { useState, useEffect } from 'react';
-import UploadDocument from './UploadDocument';
-import { Box, Typography, Button } from '@mui/material';
-import styled, { keyframes, css } from 'styled-components';
-import { useTheme } from '@mui/material/styles';
+import React, { useState, useEffect, useContext } from 'react';
+import { 
+  Button,
+  CircularProgress,
+  Snackbar,
+  Alert,
+  Box,
+  Typography,
+  Pagination
+} from '@mui/material';
+import styled, { keyframes } from 'styled-components';
 import axios from 'axios';
+import { AppContent } from '../context/AppContext';
 
-// Properly defined keyframes with css helper
-const rotate = keyframes`
-  from {
-    transform: rotateY(0deg);
-  }
-  to {
-    transform: rotateY(360deg);
-  }
-`;
-
-// Styled components for the elegant card design
-const ClientCardContainer = styled.div`
+// Styled components
+const DossierCardContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
   padding: 20px;
-  width: 100%;
 `;
 
-const ClientCard = styled.div`
-  position: relative;
-  width: 100%;
-  height: 300px;
-  transform-style: preserve-3d;
-  transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1);
+const DossierCard = styled.div`
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.3s ease;
   cursor: pointer;
-  perspective: 1000px;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 
   &:hover {
-    transform: rotateY(180deg);
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+
+  &.selected {
+    border: 2px solid #1976d2;
+    background-color: #f0f7ff;
   }
 `;
 
-const CardFace = styled.div`
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  border-radius: 16px;
+const DossierHeader = styled.div`
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  transition: all 0.8s cubic-bezier(0.4, 0.2, 0.2, 1);
-`;
-
-const FrontFace = styled(CardFace)`
-  background: linear-gradient(135deg, #4a6bff 0%, #6a11cb 100%);
-  color: white;
-`;
-
-const BackFace = styled(CardFace)`
-  background: white;
-  transform: rotateY(180deg);
-  padding: 20px;
-  color: #333;
-`;
-
-const ClientAvatar = styled.div`
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 20px;
-  font-size: 36px;
-  font-weight: bold;
-`;
-
-const ClientName = styled(Typography)`
-  font-weight: 600;
-  margin-bottom: 8px;
-  text-align: center;
-`;
-
-const ClientDetail = styled(Typography)`
-  font-size: 14px;
-  color: #666;
   margin-bottom: 12px;
-  text-align: center;
-  word-break: break-word;
 `;
 
-const ClientSelectorModal = ({ onSelect }) => {
-  const [clients, setClients] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchClients = async () => {
-      try {
-        const response = await axios.get('/api/user/all', {
-          withCredentials: true
-        });
-
-        // Handle different response formats
-        let data = response.data;
-        if (data?.users) data = data.users;
-        if (data?.data) data = data.data;
-
-        if (!Array.isArray(data)) {
-          throw new Error('Invalid data format received from server');
-        }
-
-        setClients(data);
-      } catch (err) {
-        setError(err.response?.data?.message || err.message || 'Failed to fetch clients');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchClients();
-  }, []);
-
-  if (loading) return <Typography>Loading clients...</Typography>;
-  if (error) return <Typography color="error">{error}</Typography>;
-  if (!clients?.length) return <Typography>No clients found</Typography>;
-
-  return (
-    <ClientCardContainer>
-      {clients.map((client) => (
-        <ClientCard key={client._id || client.id} onClick={() => onSelect(client._id || client.id, client.role)}>
-          <FrontFace>
-            <ClientAvatar>
-              {client.name ? client.name.split(' ').map(n => n[0]).join('') : 'U'}
-            </ClientAvatar>
-            <ClientName variant="h6">{client.name || 'Unknown User'}</ClientName>
-            <Typography>Click to select</Typography>
-          </FrontFace>
-          <BackFace>
-            <ClientName variant="h6">{client.name || 'Unknown User'}</ClientName>
-            <ClientDetail>{client.role?.toUpperCase() || 'USER'}</ClientDetail>
-            <ClientDetail>
-              <strong>Email:</strong> {client.email || 'N/A'}
-            </ClientDetail>
-            {client.phone && (
-              <ClientDetail>
-                <strong>Phone:</strong> {client.phone}
-              </ClientDetail>
-            )}
-          </BackFace>
-        </ClientCard>
-      ))}
-    </ClientCardContainer>
-  );
-};
+const DossierStatus = styled.span`
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  background-color: ${props => 
+    props.status === 'active' ? '#e8f5e9' : 
+    props.status === 'closed' ? '#ffebee' : '#e3f2fd'};
+  color: ${props => 
+    props.status === 'active' ? '#2e7d32' : 
+    props.status === 'closed' ? '#c62828' : '#1565c0'};
+`;
 
 const UploadDocumentWrapper = () => {
-  const [selectedClient, setSelectedClient] = useState(null);
-  const theme = useTheme();
+  const { backendUrl, userData } = useContext(AppContent);
+  const [dossiers, setDossiers] = useState([]);
+  const [selectedDossier, setSelectedDossier] = useState(null);
+  const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 12,
+    total: 0
+  });
 
-  const handleClientSelect = (clientId, role) => {
-    setSelectedClient({ id: clientId, role });
+  // Fetch dossiers from the new endpoint
+  const fetchDossiers = async (page = 1) => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${backendUrl}/api/bo/dossiers`, {
+        params: {
+          page,
+          limit: pagination.limit
+        },
+        withCredentials: true
+      });
+
+      setDossiers(response.data.dossiers || []);
+      setPagination(prev => ({
+        ...prev,
+        page,
+        total: response.data.total || 0
+      }));
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to fetch dossiers');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    fetchDossiers();
+  }, []);
+
+  const handlePageChange = (event, newPage) => {
+    fetchDossiers(newPage);
+  };
+
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
+  const handleUpload = async (e) => {
+  e.preventDefault();
+  if (!file || !selectedDossier) {
+    setError('Please select a file and a dossier');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('userId', userData.id); // The admin/BO user uploading the file
+  formData.append('dossierId', selectedDossier._id); // The dossier ID
+  formData.append('typeDossier', selectedDossier.type === 'fermeture' ? 'fermeture' : 'standard'); // Determine dossier type
+  formData.append('destinataireId', selectedDossier.user?._id); // The client who owns the dossier
+
+  try {
+    setLoading(true);
+    const res = await axios.post(`${backendUrl}/api/filesboadmin/upload`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      },
+      withCredentials: true
+    });
+
+    setSuccess(true);
+    setFile(null);
+    // Refresh the dossiers list after successful upload
+    fetchDossiers(pagination.page);
+  } catch (err) {
+    setError(err.response?.data?.message || 'Upload failed');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <Box sx={{ p: 4 }}>
-      <Typography variant="h5" sx={{ mb: 2 }}>Envoyer un document à un client</Typography>
+      <Typography variant="h5" sx={{ mb: 2 }}>Dossier Document Upload</Typography>
 
-      {!selectedClient ? (
+      {!selectedDossier ? (
         <>
           <Typography variant="subtitle1" sx={{ mb: 2 }}>
-            Sélectionnez un client parmi les options suivantes:
+            Select a dossier to upload documents:
           </Typography>
-          <ClientSelectorModal onSelect={handleClientSelect} />
+          
+          {loading ? (
+            <Box display="flex" justifyContent="center" mt={4}>
+              <CircularProgress />
+            </Box>
+          ) : error ? (
+            <Alert severity="error">{error}</Alert>
+          ) : dossiers.length === 0 ? (
+            <Typography>No dossiers found</Typography>
+          ) : (
+            <>
+              <DossierCardContainer>
+                {dossiers.map(dossier => (
+                  <DossierCard 
+                    key={dossier._id}
+                    onClick={() => setSelectedDossier(dossier)}
+                  >
+                    <DossierHeader>
+                      <Typography variant="h6">{dossier.codeDossier || 'Unnamed Dossier'}</Typography>
+                      <DossierStatus status={dossier.statut?.toLowerCase()}>
+                        {dossier.statut || 'UNKNOWN'}
+                      </DossierStatus>
+                    </DossierHeader>
+                    
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                      <strong>Client:</strong> {dossier.user?.name || dossier.entreprise?.nom || 'N/A'}
+                    </Typography>
+                    
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                      <strong>Type:</strong> {dossier.type === 'fermeture' ? dossier.typeFermeture : dossier.type || 'Standard'}
+                    </Typography>
+                    
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                      <strong>Created:</strong> {new Date(dossier.createdAt).toLocaleDateString()}
+                    </Typography>
+                    
+                    {dossier.fichiers?.length > 0 && (
+                      <Typography variant="body2">
+                        <strong>Documents:</strong> {dossier.fichiers.length}
+                      </Typography>
+                    )}
+                  </DossierCard>
+                ))}
+              </DossierCardContainer>
+              
+              {pagination.total > pagination.limit && (
+                <Box display="flex" justifyContent="center" mt={4}>
+                  <Pagination
+                    count={Math.ceil(pagination.total / pagination.limit)}
+                    page={pagination.page}
+                    onChange={handlePageChange}
+                    color="primary"
+                  />
+                </Box>
+              )}
+            </>
+          )}
         </>
       ) : (
-        <Box sx={{ 
-          mt: 4,
-          animation: css`${rotate} 1s ease-out`, // Fixed: Wrapped with css helper
-        }}>
-          <Button 
-            variant="outlined" 
-            color="secondary" 
-            onClick={() => setSelectedClient(null)}
-            sx={{ mb: 2 }}
-          >
-            Changer de client
-          </Button>
-          <UploadDocument
-            destinataireId={selectedClient.id}
-            roleDestinataire={selectedClient.role}
-          />
+        <Box sx={{ mt: 4 }}>
+          <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+            <Button 
+              variant="outlined" 
+              onClick={() => setSelectedDossier(null)}
+            >
+              Back to Dossiers
+            </Button>
+          </Box>
+
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Upload Document to: {selectedDossier.codeDossier}
+          </Typography>
+
+          <Box component="form" onSubmit={handleUpload} sx={{ mt: 2 }}>
+            <input
+              accept="application/pdf,image/*"
+              style={{ display: 'none' }}
+              id="dossier-file-upload"
+              type="file"
+              onChange={handleFileChange}
+            />
+            <label htmlFor="dossier-file-upload">
+              <Button 
+                variant="contained" 
+                component="span"
+                sx={{ mr: 2 }}
+              >
+                Select File
+              </Button>
+            </label>
+            
+            {file && (
+              <Typography variant="body1" sx={{ mt: 1 }}>
+                Selected: {file.name}
+              </Typography>
+            )}
+
+            <Box sx={{ mt: 3 }}>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                disabled={!file || loading}
+                startIcon={loading ? <CircularProgress size={20} /> : null}
+              >
+                Upload Document
+              </Button>
+            </Box>
+          </Box>
         </Box>
       )}
+
+      <Snackbar
+        open={!!error}
+        autoHideDuration={6000}
+        onClose={() => setError(null)}
+      >
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      </Snackbar>
+
+      <Snackbar
+        open={success}
+        autoHideDuration={6000}
+        onClose={() => setSuccess(false)}
+      >
+        <Alert severity="success" onClose={() => setSuccess(false)}>
+          Document uploaded successfully!
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

@@ -55,6 +55,7 @@ export const getModificationDossierById = async (req, res) => {
       .populate('user', 'name email')         // pour afficher nom/email du client
       .populate('boAffecte', 'name email')
       .populate('fichiers' ,  'filename url')   // pour afficher fichiers du BO
+      .populate('fichiersbo')
 
     if (!dossier) {
       return res.status(404).json({ message: "Dossier introuvable." });

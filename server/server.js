@@ -30,6 +30,7 @@ import adminStatsRouter from "./routes/adminStatsRoutes.js";
 import fileRoutes from "./routes/fileRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
 import leadRoutes from './routes/leadRoutes.js';
+import fileBoAdminRoutes from './routes/fileBoAdminRoutes.js'
 
 // Initialize app
 const app = express();
@@ -102,6 +103,7 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/leads', leadRoutes);
 app.use('/api/files', fileRoutes);
+app.use('/api/filesboadmin', fileBoAdminRoutes);
 app.use('/api/progress', demarcheRoutes)
 
 // Serve frontend in production

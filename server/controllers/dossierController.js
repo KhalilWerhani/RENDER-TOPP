@@ -155,6 +155,8 @@ export const getDossierCreationById = async (req, res) => {
       .populate('user', 'name email')  // Ensure this matches your User model
       .populate('boAffecte', 'name email ') // Note: 'boAffecte' spelling must match schema
       .populate('fichiers')
+      .populate('fichiersbo')
+      
       .lean(); // Convert to plain JS object
 
       

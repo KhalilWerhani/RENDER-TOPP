@@ -82,6 +82,12 @@ const modificationSchema = new mongoose.Schema({
         ref: 'File',
       },
     ],
+    fichiersbo: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Document',
+        },
+        ],
   createdAt: {
     type: Date,
     default: Date.now

@@ -1,6 +1,6 @@
 import express from "express";
 import { getDossiersAttribues , getAllDossiersBO,getDashboardStats } from "../controllers/boController.js";
-import userAuth, {  verifyBO} from "../middleware/userAuth.js";
+import userAuth, {  verifyAdmin, verifyBO} from "../middleware/userAuth.js";
 
 const router = express.Router();
 
@@ -8,6 +8,8 @@ router.get("/dossiers-attribues", userAuth, verifyBO, getDossiersAttribues);
 // Dashboard global
 router.get('/dossiers',userAuth, verifyBO, getAllDossiersBO);
 //statistique pour le dashbord  // In your routes file (e.g., boRoutes.js)
+
+
 
 router.get('/dashboard', userAuth, verifyBO, getDashboardStats);
 

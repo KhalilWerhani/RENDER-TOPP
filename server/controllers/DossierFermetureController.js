@@ -66,9 +66,10 @@ export const getDossierFermetureById = async (req, res) => {
     }
 
     const dossier = await DossierFermeture.findById(req.params.id)
-      .populate("fichiers")
+      .populate("fichiers", 'filename url')
       .populate('user', 'name email')
-      .populate('boAffecte', 'name email');
+      .populate('boAffecte', 'name email')
+      .populate("fichiersbo");
 
     if (!dossier) {
       return res.status(404).json({ message: "Dossier introuvable" });

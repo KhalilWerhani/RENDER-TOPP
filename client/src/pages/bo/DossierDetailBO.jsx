@@ -635,106 +635,98 @@ const DossierDetailBO = () => {
           
 
           {/* Right Column */}
-          <div className="space-y-6">
-            {/* Attachments Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
-                <h2 className="text-lg font-semibold text-gray-800 flex items-center">
-                  <FiDownload className="mr-2 text-gray-500" />
-                  Pièces jointes
-                </h2>
-              </div>
-              <div className="divide-y divide-gray-100">
-                {dossier.fichiers?.length > 0 ? (
-                  <table className="min-w-full text-sm">
-                    <thead className="bg-gray-50 text-xs text-gray-500 uppercase">
-                      <tr>
-                        <th className="px-4 py-2 text-left">Nom</th>
-                        <th className="px-4 py-2 text-left">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {dossier.fichiers.map((piece, index) => (
-                        <tr key={index}>
-                          <td className="px-4 py-2 text-gray-700">{piece.filename}</td>
-                          <td className="px-4 py-2">
-                            <a
-                              href={piece.url}
-                              download={piece.filename}  
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={`flex items-center text-blue-600 hover:text-blue-800 ${downloadedFiles.includes(piece.filename) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                              title="Télécharger"
-                              onClick={(e) => downloadedFiles.includes(piece.filename) && e.preventDefault()}
-                            >
-                              <FiDownload className="mr-1" />
-                              {downloadedFiles.includes(piece.filename) ? 'Téléchargé' : 'Télécharger'}
-                            </a>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <div className="px-6 py-8 text-center">
-                    <FiFile className="mx-auto h-12 w-12 text-gray-400" />
-                    <h3 className="mt-2 text-sm font-medium text-gray-900">Aucune pièce jointe</h3>
-                    <p className="mt-1 text-sm text-gray-500">Aucun document n'a été téléchargé pour ce dossier.</p>
-                  </div>
-                )}
-              </div>
-            </div>
-            
-            
+          {/* Attachments Card */}
+<div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+  <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
+    <h2 className="text-lg font-semibold text-gray-800 flex items-center">
+      <FiDownload className="mr-2 text-gray-500" />
+      Pièces jointes
+    </h2>
+  </div>
+  <div className="divide-y divide-gray-100">
+    {/* Client Uploaded Documents */}
+    {dossier.fichiers?.length > 0 && (
+      <div className="px-6 py-4">
+        <h3 className="text-sm font-medium text-gray-500 mb-2">Documents client</h3>
+        <table className="min-w-full text-sm">
+          <thead className="bg-gray-50 text-xs text-gray-500 uppercase">
+            <tr>
+              <th className="px-4 py-2 text-left">Nom</th>
+              <th className="px-4 py-2 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {dossier.fichiers.map((piece, index) => (
+              <tr key={`client-${index}`}>
+                <td className="px-4 py-2 text-gray-700">{piece.filename}</td>
+                <td className="px-4 py-2">
+                  <a
+                    href={piece.url}
+                    download={piece.filename}  
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`flex items-center text-blue-600 hover:text-blue-800 ${downloadedFiles.includes(piece.filename) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    title="Télécharger"
+                    onClick={(e) => downloadedFiles.includes(piece.filename) && e.preventDefault()}
+                  >
+                    <FiDownload className="mr-1" />
+                    {downloadedFiles.includes(piece.filename) ? 'Téléchargé' : 'Télécharger'}
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
 
-            {/* Timeline Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
-                <h2 className="text-lg font-semibold text-gray-800">Historique</h2>
-              </div>
-              <div className="px-6 py-4">
-                <div className="flow-root">
-                  <ul className="-mb-8">
-                    <li className="relative pb-8">
-                      <div className="relative flex space-x-3">
-                        <div>
-                          <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center ring-8 ring-white">
-                            <FiCheckCircle className="h-5 w-5 text-blue-500" />
-                          </div>
-                        </div>
-                        <div className="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
-                          <div>
-                            <p className="text-sm text-gray-800">Dossier créé</p>
-                          </div>
-                          <div className="text-right text-sm whitespace-nowrap text-gray-500">
-                            <time dateTime={dossier.createdAt}>{formatDate(dossier.createdAt)}</time>
-                          </div>
-                        </div>
-                      </div>
-                    </li>
-                    <li className="relative pb-8">
-                      <div className="relative flex space-x-3">
-                        <div>
-                          <div className="h-8 w-8 rounded-full bg-gray-50 flex items-center justify-center ring-8 ring-white">
-                            <FiInfo className="h-5 w-5 text-gray-500" />
-                          </div>
-                        </div>
-                        <div className="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
-                          <div>
-                            <p className="text-sm text-gray-800">Statut mis à jour</p>
-                            <p className="text-sm text-gray-500">En attente de traitement</p>
-                          </div>
-                        </div>
-                        
-                      </div>
-                    </li>
-                  </ul>
-                  
-                </div>
-                
-              </div>
-            </div>
-          </div>
+    {/* BO Uploaded Documents */}
+    {dossier.fichiersbo?.length > 0 && (
+      <div className="px-6 py-4">
+        <h3 className="text-sm font-medium text-gray-500 mb-2">Documents backoffice</h3>
+        <table className="min-w-full text-sm">
+          <thead className="bg-gray-50 text-xs text-gray-500 uppercase">
+            <tr>
+              <th className="px-4 py-2 text-left">Nom</th>
+              <th className="px-4 py-2 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {dossier.fichiersbo.map((piece, index) => (
+              <tr key={`bo-${index}`}>
+                <td className="px-4 py-2 text-gray-700">
+                  {piece.filename || piece.titre}
+                </td>
+                <td className="px-4 py-2">
+                  <a
+                    href={piece.url || piece.fichier}
+                    download={piece.filename || piece.titre}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center text-blue-600 hover:text-blue-800"
+                    title="Télécharger"
+                  >
+                    <FiDownload className="mr-1" />
+                    Télécharger
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+
+    {/* No documents message */}
+    {(!dossier.fichiers?.length && !dossier.fichiersbo?.length) && (
+      <div className="px-6 py-8 text-center">
+        <FiFile className="mx-auto h-12 w-12 text-gray-400" />
+        <h3 className="mt-2 text-sm font-medium text-gray-900">Aucune pièce jointe</h3>
+        <p className="mt-1 text-sm text-gray-500">Aucun document n'a été téléchargé pour ce dossier.</p>
+      </div>
+    )}
+  </div>
+</div>
           
         </div>
       </div>
