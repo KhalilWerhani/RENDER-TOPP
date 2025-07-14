@@ -2,7 +2,17 @@ import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { AppContent } from '../../context/AppContext';
 import { toast } from 'react-toastify';
-import { FiCreditCard, FiCheckCircle, FiClock, FiDollarSign, FiCalendar, FiFileText, FiType } from 'react-icons/fi';
+import { 
+  FiCreditCard, 
+  FiCheckCircle, 
+  FiClock, 
+  FiDollarSign, 
+  FiCalendar, 
+  FiFileText, 
+  FiUser,
+  FiAlertCircle,
+  FiLoader
+} from 'react-icons/fi';
 import { motion } from 'framer-motion';
 
 const MesPaiements = () => {
@@ -18,7 +28,7 @@ const MesPaiements = () => {
         });
         setPaiements(data.paiements);
       } catch (err) {
-        toast.error("Erreur chargement paiements");
+        toast.error("Erreur lors du chargement des paiements");
       } finally {
         setLoading(false);
       }
@@ -30,25 +40,37 @@ const MesPaiements = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'payé':
-        return 'bg-green-100 text-green-800';
+        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
       case 'en attente':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-amber-50 text-amber-700 border-amber-200';
       case 'Erreur Stripe':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-50 text-red-700 border-red-200';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-50 text-gray-700 border-gray-200';
     }
   };
 
   const getStatusIcon = (status) => {
     switch (status) {
       case 'payé':
-        return <FiCheckCircle className="text-green-500" />;
+        return <FiCheckCircle className="text-emerald-500" size={16} />;
       case 'en attente':
-        return <FiClock className="text-yellow-500" />;
+        return <FiClock className="text-amber-500" size={16} />;
+      case 'Erreur Stripe':
+        return <FiAlertCircle className="text-red-500" size={16} />;
       default:
-        return <FiCreditCard />;
+        return <FiLoader className="text-gray-500" size={16} />;
     }
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleString('fr-FR', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   if (loading) {
@@ -62,109 +84,138 @@ const MesPaiements = () => {
   if (!paiements.length) {
     return (
       <div className="max-w-4xl mx-auto p-8 text-center">
-        <div className="bg-blue-50 p-6 rounded-lg inline-block">
-          <FiCreditCard className="mx-auto text-4xl text-blue-500 mb-4" />
-          <h2 className="text-xl font-semibold text-gray-800">Aucun paiement trouvé</h2>
-          <p className="text-gray-600 mt-2">Vous n'avez effectué aucun paiement pour le moment.</p>
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-2xl shadow-sm inline-block">
+          <div className="bg-white p-4 rounded-full inline-flex items-center justify-center shadow-xs mb-4">
+            <FiCreditCard className="text-3xl text-blue-600" />
+          </div>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-2">Aucun paiement trouvé</h2>
+          <p className="text-gray-600 max-w-md mx-auto">
+            Vous n'avez effectué aucun paiement pour le moment. Tous vos futurs paiements apparaîtront ici.
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h1 className="text-2xl font-bold text-gray-800 flex items-center">
-            <FiCreditCard className="mr-2" /> Historique des Paiements
-          </h1>
-          <p className="text-gray-600 mt-1">Vos transactions récentes et leur statut</p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
+        <div className="px-6 py-5 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800 flex items-center">
+                <FiCreditCard className="mr-3 text-indigo-600" /> 
+                Historique des Paiements
+              </h1>
+              <p className="text-gray-600 mt-1">Vos transactions et leur statut actuel</p>
+            </div>
+            <div className="mt-3 sm:mt-0">
+              <span className="inline-flex items-center px-3 py-1 rounded-full bg-white text-sm font-medium text-gray-800 border border-gray-200 shadow-xs">
+                {paiements.length} {paiements.length > 1 ? 'paiements' : 'paiement'}
+              </span>
+            </div>
+          </div>
         </div>
 
-        <div className="divide-y divide-gray-200">
-          {paiements.map((p, index) => (
-            <motion.div
-              key={p._id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: index * 0.05 }}
-              className="p-6 hover:bg-gray-50 transition-colors duration-150"
-            >
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center mb-4 sm:mb-0">
-                  <div className={`p-3 rounded-full ${getStatusColor(p.stripe?.statut || p.statut)} mr-4`}>
-                    {getStatusIcon(p.stripe?.statut || p.statut)}
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-gray-900">
-                      Paiement #{index + 1} - {p.dossier?.type || 'Dossier'}
-                    </h3>
-                    <p className="text-sm text-gray-500 flex items-center mt-1">
-                      <FiCalendar className="mr-1" /> 
-                      {new Date(p.stripe?.date || p.date).toLocaleString('fr-FR', {
-                        day: '2-digit',
-                        month: 'long',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center">
-                  <span className="text-xl font-semibold text-gray-900 mr-4">
-                    {p.stripe?.montant || p.montant} {p.stripe?.devise || 'EUR'}
-                  </span>
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(p.stripe?.statut || p.statut)}`}>
-                    {p.stripe?.statut || p.statut}
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div className="flex items-center">
-                  <FiFileText className="text-gray-400 mr-2" />
-                  <span className="text-gray-600">Type:</span>
-                  <span className="ml-2 font-medium">
-                    {p.dossierModel === 'DossierModification' ? 'Modification' : 'Création'}
-                  </span>
-                </div>
-
-                {p.modificationType && (
-                  <div className="flex items-center">
-                    <FiType className="text-gray-400 mr-2" />
-                    <span className="text-gray-600">Modification:</span>
-                    <span className="ml-2 font-medium">
-                      {p.modificationType.replace(/_/g, ' ')}
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Transaction
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Montant
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Statut
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Date
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Détails
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {paiements.map((p, index) => (
+                <motion.tr 
+                  key={p._id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  className="hover:bg-gray-50"
+                >
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className={`p-2 rounded-lg ${getStatusColor(p.stripe?.statut || p.statut)} mr-3`}>
+                        {getStatusIcon(p.stripe?.statut || p.statut)}
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-900">
+                          Paiement #{index + 1}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {p.dossier?.type || 'Dossier'} • {p.dossierModel === 'DossierModification' ? 'Modification' : 'Création'}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-lg font-semibold text-gray-900">
+                      {p.stripe?.montant || p.montant} {p.stripe?.devise || 'EUR'}
+                    </div>
+                    <div className="text-sm text-gray-500 flex items-center mt-1">
+                      <FiDollarSign className="mr-1" />
+                      {p.stripe?.methode || p.méthode || 'Non spécifiée'}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-3 py-1 inline-flex items-center rounded-full text-sm font-medium ${getStatusColor(p.stripe?.statut || p.statut)}`}>
+                      {getStatusIcon(p.stripe?.statut || p.statut)}
+                      <span className="ml-1.5 capitalize">{p.stripe?.statut || p.statut}</span>
                     </span>
-                  </div>
-                )}
-
-                <div className="flex items-center">
-                  <FiDollarSign className="text-gray-400 mr-2" />
-                  <span className="text-gray-600">Méthode:</span>
-                  <span className="ml-2 font-medium capitalize">
-                    {p.stripe?.methode || p.méthode || 'Non spécifiée'}
-                  </span>
-                </div>
-
-                <div className="flex items-center">
-                  <FiCreditCard className="text-gray-400 mr-2" />
-                  <span className="text-gray-600">Référence:</span>
-                  <span className="ml-2 font-mono text-sm">
-                    {p.sessionId ? p.sessionId.slice(0, 8) + '...' : 'N/A'}
-                  </span>
-                </div>
-              </div>
-            </motion.div>
-          ))}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">
+                      {formatDate(p.stripe?.date || p.date)}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div className="flex flex-col space-y-1">
+                      {p.user && (
+                        <div className="flex items-center">
+                          <FiUser className="mr-2 text-gray-400" />
+                          {p.user.name}
+                        </div>
+                      )}
+                      {p.sessionId && (
+                        <div className="flex items-center">
+                          <FiCreditCard className="mr-2 text-gray-400" />
+                          <span className="font-mono">ID: {p.sessionId.slice(0, 8)}...</span>
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
         </div>
 
-        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 text-right">
+        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
           <p className="text-sm text-gray-600">
             Affichage de <span className="font-medium">{paiements.length}</span> paiements
           </p>
+          <div className="flex space-x-2">
+            <button className="px-3 py-1 rounded-md bg-white border border-gray-300 text-sm font-medium text-gray-700 shadow-xs hover:bg-gray-50">
+              Précédent
+            </button>
+            <button className="px-3 py-1 rounded-md bg-white border border-gray-300 text-sm font-medium text-gray-700 shadow-xs hover:bg-gray-50">
+              Suivant
+            </button>
+          </div>
         </div>
       </div>
     </div>

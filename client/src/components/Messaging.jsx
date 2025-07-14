@@ -2,6 +2,7 @@ import { useContext, useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { AppContent } from "../context/AppContext";
 import { toast } from "react-toastify";
+import { assets } from "../assets/assets.js";
 
 const Messaging = ({ targetUserId, onBack, embedded = false }) => {
     const [messages, setMessages] = useState([]);
@@ -191,9 +192,9 @@ setLastLogin(data.user?.lastLogin || null);
                     <div className="flex items-center space-x-3">
                         <div className="relative">
                             <img
-                                src={receiverAvatar}
+                                src={assets.person_icon}
                                 alt={receiverName}
-                                className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
+                                className="w-8 h-8 rounded-full object-cover border-2 border-white shadow-sm"
                             />
                             <div className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white ${isReceiverOnline ? 'bg-green-500' : 'bg-gray-400'}`}></div>
                         </div>

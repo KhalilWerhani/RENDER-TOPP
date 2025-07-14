@@ -315,7 +315,7 @@ const handleUpload = async (e) => {
       <Navbar />
       
       {/* Simple Stepper */}
-      <div className="max-w-4xl mt-20 mx-auto px-4 pt-6">
+      <div className="max-w-4xl mt-20 mx-auto px-4 pt-6 ">
         <Stepper currentStep={3} />
       </div>
 

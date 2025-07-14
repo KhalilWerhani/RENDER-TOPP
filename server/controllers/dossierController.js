@@ -62,14 +62,17 @@ export const getAllProject = async (req, res) => {
     const [dossiers, modifications, fermetures] = await Promise.all([
       Dossier.find({ user: userId })
         .populate("fichiers")
+        .populate("fichiersbo")
         .populate("boAffecte", "name email")
         .sort({ createdAt: -1 }),
       DossierModification.find({ user: userId })
         .populate("fichiers")
+        .populate("fichiersbo")
         .populate("boAffecte", "name email")
         .sort({ createdAt: -1 }),
       DossierFermeture.find({ user: userId })
         .populate("fichiers")
+        .populate("fichiersbo")
         .populate("boAffecte", "name email")
         .sort({ createdAt: -1 })
     ]);

@@ -5,7 +5,8 @@ import { toast } from "react-toastify";
 import {
   FiFile, FiUser, FiClock, FiCheckCircle, FiDollarSign,
   FiRefreshCw, FiSearch, FiFilter, FiChevronDown, FiChevronUp,
-  FiDownload, FiEye, FiEdit, FiMoreVertical, FiCalendar , FiCreditCard 
+  FiDownload, FiEye, FiEdit, FiMoreVertical, FiCalendar, FiCreditCard,
+  FiPlus, FiX
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from 'react-router-dom';
@@ -59,15 +60,14 @@ const typeColors = {
   "CHANGEMENT_ACTIVITE": "bg-cyan-100 text-cyan-800",
   "TRANSFORMATION_SARL_EN_SAS": "bg-sky-100 text-sky-800",
   "TRANSFORMATION_SAS_EN_SARL": "bg-sky-100 text-sky-800",
-  // Fermeture dossier types
   "DISSOLUTION_LIQUIDATION": "bg-red-100 text-red-800",
   "MISE_EN_SOMMEIL": "bg-orange-100 text-orange-800",
   "Radiation auto-entrepreneur": "bg-yellow-100 text-yellow-800",
   "Dépôt de bilan": "bg-purple-100 text-purple-800",
   "Dépôt de marque": "bg-green-100 text-green-800",
-  // Generic fallback
   "FERMETURE": "bg-gray-100 text-gray-800"
 };
+
 const typeDisplayNames = {
   "DISSOLUTION_LIQUIDATION": "Dissolution & Liquidation",
   "MISE_EN_SOMMEIL": "Mise en sommeil",
@@ -76,8 +76,70 @@ const typeDisplayNames = {
   "Dépôt de marque": "Dépôt de marque"
 };
 
+// Document preview component
+const DocumentPreview = ({ documents, title, countColor = "bg-gray-100 text-gray-800", maxVisible = 3 }) => {
+  const [showAll, setShowAll] = useState(false);
+
+  if (!documents || documents.length === 0) {
+    return <p className="text-gray-500 text-sm">Aucun document</p>;
+  }
+
+  const visibleDocs = showAll ? documents : documents.slice(0, maxVisible);
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="text-sm font-medium text-gray-500 flex items-center">
+          {title}
+          <span className={`ml-2 ${countColor} text-xs px-2 py-0.5 rounded-full`}>
+            {documents.length}
+          </span>
+        </h4>
+        {documents.length > maxVisible && (
+          <button
+            onClick={() => setShowAll(!showAll)}
+            className="text-xs text-primary hover:underline"
+          >
+            {showAll ? 'Voir moins' : 'Voir tout'}
+          </button>
+        )}
+      </div>
+      
+      <div className="space-y-2">
+        {visibleDocs.map((doc, index) => (
+          <div key={index} className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200">
+            <div className="flex items-center min-w-0">
+              <FiFile className="text-gray-400 mr-2 flex-shrink-0" />
+              <span className="text-sm text-gray-700 truncate">
+                {doc.filename || doc.titre}
+              </span>
+            </div>
+            <div className="flex items-center space-x-2 ml-2">
+              {doc.createdAt && (
+                <span className="text-xs text-gray-500 whitespace-nowrap">
+                  {new Date(doc.createdAt).toLocaleDateString('fr-FR')}
+                </span>
+              )}
+              <a
+                href={doc.url || doc.fichier}
+                download={doc.filename || doc.titre}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-1.5 text-gray-500 hover:text-primary rounded-full hover:bg-gray-100 transition-colors"
+                title="Télécharger"
+              >
+                <FiDownload size={16} />
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const Project = () => {
-  const { backendUrl , userData } = useContext(AppContent);
+  const { backendUrl, userData } = useContext(AppContent);
   const [dossiers, setDossiers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState("all");
@@ -91,7 +153,7 @@ const Project = () => {
     const fetchAllDossiers = async () => {
       try {
         const { data } = await axios.get(`${backendUrl}/api/dossier/user/all`, { withCredentials: true });
-       setDossiers(Array.isArray(data.dossiers) ? data.dossiers : []);
+        setDossiers(Array.isArray(data.dossiers) ? data.dossiers : []);
       } catch (err) {
         toast.error("Erreur lors du chargement des projets");
         console.error(err);
@@ -99,19 +161,6 @@ const Project = () => {
         setLoading(false);
       }
     };
-
-    const filteredDossiers = (Array.isArray(dossiers) ? dossiers : []).filter(dossier => {
-  const matchesStatus = selectedStatus === "all" || dossier.statut === selectedStatus;
-
-  const dossierType = dossier.type ? dossier.type.toLowerCase() : '';
-  const boName = dossier.boAffecte?.name ? dossier.boAffecte.name.toLowerCase() : '';
-  const searchTermLower = searchTerm.toLowerCase();
-
-  const matchesSearch = dossierType.includes(searchTermLower) ||
-                        boName.includes(searchTermLower);
-
-  return matchesStatus && matchesSearch;
-});
 
     fetchAllDossiers();
   }, [backendUrl]);
@@ -156,16 +205,14 @@ const Project = () => {
 
   const filteredDossiers = dossiers.filter(dossier => {
     const matchesStatus = selectedStatus === "all" || dossier.statut === selectedStatus;
-    
-    // Safely handle dossier.type and boAffecte.name
     const dossierType = dossier.type ? dossier.type.toLowerCase() : '';
     const boName = dossier.boAffecte?.name ? dossier.boAffecte.name.toLowerCase() : '';
     const searchTermLower = searchTerm.toLowerCase();
     
-    const matchesSearch = dossierType.includes(searchTermLower) || 
-                         boName.includes(searchTermLower);
-    
-    return matchesStatus && matchesSearch;
+    return matchesStatus && (
+      dossierType.includes(searchTermLower) || 
+      boName.includes(searchTermLower)
+    );
   });
 
   const sortedDossiers = [...filteredDossiers].sort((a, b) => {
@@ -179,27 +226,15 @@ const Project = () => {
   });
 
   const requestSort = (key) => {
-    let direction = "asc";
-    if (sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc";
-    }
-    setSortConfig({ key, direction });
+    setSortConfig(prev => ({
+      key,
+      direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc"
+    }));
   };
 
   const toggleExpandDossier = (id) => {
-    setExpandedDossier(expandedDossier === id ? null : id);
+    setExpandedDossier(prev => prev === id ? null : id);
   };
-
- const handleDownload = (url, filename) => {
-    axios
-      .get(url, {
-        responseType: "blob"
-      })
-      .then((res) => {
-        fileDownload(res.data, filename);
-      });
-  };
-
 
   if (loading) return (
     <div className="flex justify-center items-center h-64">
@@ -212,29 +247,29 @@ const Project = () => {
   );
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="p-4 md:p-6 max-w-7xl mx-auto">
       <div className="flex flex-col space-y-6">
-        {/* Enhanced Header with Stats */}
+        {/* Header with Stats */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="bg-gradient-to-r from-primary to-primary-dark rounded-xl shadow-lg p-6 text-white"
+          className="bg-white rounded-xl shadow-sm p-6 border border-gray-100"
         >
           <div className="mb-6">
-            <h1 className="text-3xl text-gray-800 font-bold mb-2">Gestion des Dossiers</h1>
-            <p className="text-gray-500">Suivez l'avancement de tous vos dossiers en temps réel</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Gestion des Dossiers</h1>
+            <p className="text-gray-500">Suivez l'avancement de vos dossiers</p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-            <div className="bg-white/700 backdrop-blur-sm rounded-lg p-4 border border-black">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+            <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
               <div className="flex items-center">
                 <div className="p-2 rounded-full bg-gray-500 mr-3">
                   <FiFile className="text-white" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-900">Total</p>
-                  <p className="text-xl font-semibold text-gray-900">
+                  <p className="text-xs md:text-sm text-gray-600">Total</p>
+                  <p className="text-lg md:text-xl font-semibold text-gray-800">
                     {dossiers.length}
                   </p>
                 </div>
@@ -242,14 +277,14 @@ const Project = () => {
             </div>
 
             {Object.entries(statusConfig).map(([key, { label, bgColor, icon }]) => (
-              <div key={key} className={`${bgColor} backdrop-blur-sm rounded-lg p-4 border border-white/90`}>
+              <div key={key} className={`${bgColor} rounded-lg p-3 border border-gray-200`}>
                 <div className="flex items-center">
                   <div className="p-2 rounded-full bg-white/20 mr-3">
                     {React.cloneElement(icon, { className: "text-white" })}
                   </div>
                   <div>
-                    <p className="text-sm text-white/90">{label}</p>
-                    <p className="text-xl font-semibold text-white">
+                    <p className="text-xs md:text-sm text-gray-700">{label}</p>
+                    <p className="text-lg md:text-xl font-semibold text-gray-800">
                       {dossiers.filter(d => d.statut === key).length}
                     </p>
                   </div>
@@ -259,14 +294,14 @@ const Project = () => {
           </div>
         </motion.div>
 
-        {/* Improved Filters Section */}
+        {/* Filters Section */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="bg-white rounded-xl shadow-sm p-6 border border-gray-100"
+          className="bg-white rounded-xl shadow-sm p-4 md:p-6 border border-gray-100"
         >
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div className="relative flex-1">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <FiSearch className="text-gray-400" />
@@ -274,13 +309,13 @@ const Project = () => {
               <input
                 type="text"
                 placeholder="Rechercher par type, BO..."
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3">
               <div className="flex items-center space-x-2 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
                 <FiFilter className="text-gray-500" />
                 <select
@@ -299,15 +334,15 @@ const Project = () => {
         </motion.div>
 
         {/* Dossiers List */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           {sortedDossiers.length === 0 ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="bg-white rounded-xl shadow-sm p-8 text-center border border-gray-100"
             >
-              <div className="mx-auto w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                <FiFile className="text-gray-400 text-3xl" />
+              <div className="mx-auto w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                <FiFile className="text-gray-400 text-2xl" />
               </div>
               <h3 className="text-lg font-medium text-gray-700 mb-1">Aucun dossier trouvé</h3>
               <p className="text-gray-500">Essayez d'ajuster vos filtres de recherche</p>
@@ -323,56 +358,54 @@ const Project = () => {
                   transition={{ duration: 0.3 }}
                   className={`bg-white rounded-xl shadow-sm overflow-hidden border-l-4 ${statusConfig[dossier.statut]?.color.replace('bg', 'border')} border border-gray-100`}
                 >
-                  <div className="p-6">
-                    <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+                  <div className="p-4 md:p-6">
+                    <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-3">
                       <div className="flex-1">
-                        <div className="flex flex-wrap items-center gap-3 mb-3">
-                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${typeColors[dossier.type] || 'bg-gray-100 text-gray-800'}`}>
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${typeColors[dossier.type] || 'bg-gray-100 text-gray-800'}`}>
                             {dossier.type}
                           </span>
-                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${statusConfig[dossier.statut.toLowerCase()]?.color || 'bg-gray-100 text-gray-800'}`}>
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${statusConfig[dossier.statut.toLowerCase()]?.color || 'bg-gray-100 text-gray-800'}`}>
                             {statusConfig[dossier.statut.toLowerCase()]?.icon}
                             {statusConfig[dossier.statut.toLowerCase()]?.label || dossier.statut}
                           </span>
                           {dossier.boAffecte?.name && (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
-                              <FiUser className="mr-1.5" />
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
+                              <FiUser className="mr-1" size={12} />
                               {dossier.boAffecte.name}
                             </span>
                           )}
                         </div>
 
-                        <h3 className="text-xl font-semibold text-gray-800 mb-2">
-  {dossier.isModification ? "Modification" : 
-   dossier.isFermeture ? (typeDisplayNames[dossier.type] || "Fermeture") : 
-   "Création d'entreprise"}
-</h3>
+                        <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-1">
+                          {dossier.isModification ? "Modification" : 
+                           dossier.isFermeture ? (typeDisplayNames[dossier.type] || "Fermeture") : 
+                           "Création d'entreprise"}
+                        </h3>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                          <div className="flex items-center text-gray-600">
-                            <FiCalendar className="text-gray-400 mr-2 flex-shrink-0" />
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+                          <div className="flex items-center text-gray-600 text-sm">
+                            <FiCalendar className="text-gray-400 mr-2 flex-shrink-0" size={14} />
                             <span>
-                              Créé le {new Date(dossier.createdAt).toLocaleDateString('fr-FR', {
+                              {new Date(dossier.createdAt).toLocaleDateString('fr-FR', {
                                 day: 'numeric',
-                                month: 'long',
-                                year: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
+                                month: 'short',
+                                year: 'numeric'
                               })}
                             </span>
                           </div>
 
-                          <div className="flex items-center text-gray-600">
-                            <FiFile className="text-gray-400 mr-2 flex-shrink-0" />
+                          <div className="flex items-center text-gray-600 text-sm">
+                            <FiFile className="text-gray-400 mr-2 flex-shrink-0" size={14} />
                             <span>
-                              {dossier.fichiers?.length || 0} pièce(s) jointe(s)
+                              {dossier.fichiers?.length || 0} fichiers • {dossier.fichiersbo?.length || 0} BO
                             </span>
                           </div>
 
-                          <div className="flex items-center text-gray-600">
-                            <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div className="flex items-center text-gray-600 text-sm">
+                            <div className="w-full bg-gray-200 rounded-full h-1.5">
                               <div
-                                className={`h-2 rounded-full ${statusConfig[dossier.statut]?.color.replace('bg', 'bg').split(' ')[0]}`}
+                                className={`h-1.5 rounded-full ${statusConfig[dossier.statut]?.color.replace('bg', 'bg').split(' ')[0]}`}
                                 style={{
                                   width: `${(dossier.etatAvancement === 'formulaire' ? 20 :
                                     dossier.etatAvancement === 'paiement' ? 40 :
@@ -388,15 +421,26 @@ const Project = () => {
                         </div>
                       </div>
 
-                      <div className="flex items-center space-x-3">
+                      <div className="flex items-center space-x-2">
                         <button
                           onClick={() => toggleExpandDossier(dossier._id)}
-                          className="p-2 text-gray-500 hover:text-primary rounded-full hover:bg-gray-50 transition-colors"
+                          className="p-1.5 text-gray-500 hover:text-primary rounded-full hover:bg-gray-50 transition-colors"
                         >
                           {expandedDossier === dossier._id ? <FiChevronUp /> : <FiChevronDown />}
                         </button>
-                        <button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors shadow-sm">
-                          Actions
+                        <button 
+                          onClick={() => {
+                            if (dossier.isModification) {
+                              navigate(`/modification/${dossier._id}`);
+                            } else if (dossier.isFermeture) {
+                              navigate(`/fermeture/${dossier._id}`);
+                            } else {
+                              navigate(`/dossier/${dossier._id}`);
+                            }
+                          }}
+                          className="px-3 py-1.5 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors shadow-sm text-sm"
+                        >
+                          Voir
                         </button>
                       </div>
                     </div>
@@ -411,130 +455,105 @@ const Project = () => {
                         transition={{ duration: 0.3 }}
                         className="border-t border-gray-100 overflow-hidden"
                       >
-                        <div className="p-6 bg-gray-50">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                              <h4 className="text-sm font-medium text-gray-500 mb-3">Détails du dossier: {dossier.codeDossier}</h4>
-                              <div className="space-y-3">
-                                <div className="flex">
-                                  <span className="text-gray-500 w-32 flex-shrink-0">Type:</span>
-                                  <span className="text-gray-800 font-medium">{dossier.type}</span>
-                                </div>
-                                <div className="flex">
-                                  <span className="text-gray-500 w-32 flex-shrink-0">Statut:</span>
-                                  <span className={`text-sm font-medium ${statusConfig[dossier.statut]?.color.split(' ')[2]}`}>
-                                    {statusConfig[dossier.statut]?.label || dossier.statut}
-                                  </span>
-                                </div>
-                                <div className="flex">
-                                  <span className="text-gray-500 w-32 flex-shrink-0">BO Affecté:</span>
-                                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
-                                    <FiUser className="mr-1.5" />
-                                    {dossier.boAffecte?.name
-                                      ? `${dossier.boAffecte.name} (${dossier.boAffecte.email})`
-                                      : "Non affecté"}
-                                  </span>
-                                </div>
-                                <div className="flex">
-                                  <span className="text-gray-500 w-32 flex-shrink-0">Date création:</span>
-                                  <span className="text-gray-800">
-                                    {new Date(dossier.createdAt).toLocaleDateString('fr-FR', {
-                                      day: 'numeric',
-                                      month: 'long',
-                                      year: 'numeric',
-                                      hour: '2-digit',
-                                      minute: '2-digit'
-                                    })}
-                                  </span>
+                        <div className="p-4 md:p-6 bg-gray-50">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-4">
+                              <div>
+                                <h4 className="text-xs font-medium text-gray-500 mb-2">Détails du dossier</h4>
+                                <div className="space-y-2 text-sm">
+                                  <div className="flex">
+                                    <span className="text-gray-500 w-24 flex-shrink-0">Type:</span>
+                                    <span className="text-gray-800 font-medium">{dossier.type}</span>
+                                  </div>
+                                  <div className="flex">
+                                    <span className="text-gray-500 w-24 flex-shrink-0">Statut:</span>
+                                    <span className={`font-medium ${statusConfig[dossier.statut]?.color.split(' ')[2]}`}>
+                                      {statusConfig[dossier.statut]?.label || dossier.statut}
+                                    </span>
+                                  </div>
+                                  <div className="flex">
+                                    <span className="text-gray-500 w-24 flex-shrink-0">BO Affecté:</span>
+                                    <span className="text-gray-800">
+                                      {dossier.boAffecte?.name || "Non affecté"}
+                                    </span>
+                                  </div>
+                                  <div className="flex">
+                                    <span className="text-gray-500 w-24 flex-shrink-0">Code:</span>
+                                    <span className="text-gray-800 font-mono">{dossier.codeDossier}</span>
+                                  </div>
                                 </div>
                               </div>
+
+                              <DocumentPreview 
+                                documents={dossier.fichiers || []} 
+                                title="Vos documents" 
+                                countColor="bg-gray-100 text-gray-800"
+                              />
                             </div>
 
-                            <div>
-                              <h4 className="text-sm font-medium text-gray-500 mb-3">Pièces jointes</h4>
-                              {dossier.fichiers?.length > 0 ? (
-                                <div className="space-y-2">
-                                  {dossier.fichiers.map((piece, index) => (
-                                    <div key={index} className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200">
-                                      <div className="flex items-center">
-                                        <FiFile className="text-gray-400 mr-2" />
-                                        <span className="text-sm text-gray-700 truncate max-w-xs">{piece.filename}</span>
-                                      </div>
-                                      <a
-                                        href={piece.url}
-                                        download={piece.filename}
-                                        target="_blank"
-                                        title="Télécharger"
-                                        className="p-1.5 text-gray-500 hover:text-primary rounded-full hover:bg-gray-100 transition-colors"
-                                      >
-                                        <FiDownload size={16} />
-                                      </a>
+                            <div className="space-y-4">
+                              <DocumentPreview 
+                                documents={dossier.fichiersbo || []} 
+                                title="Documents du BO" 
+                                countColor="bg-blue-100 text-blue-800"
+                              />
 
-                                    </div>
-                                  ))}
-                                </div>
-                              ) : (
-                                <p className="text-gray-500 text-sm">Aucune pièce jointe</p>
-                              )}
+                              <div className="pt-2 flex flex-wrap gap-2 justify-end">
+                                <button
+                                  disabled={["payé", "a traité", "en traitement", "traité"].includes(dossier.statut)}
+                                  onClick={() => {
+                                    if (!["payé", "a traité", "en traitement", "traité"].includes(dossier.statut)) {
+                                      if (dossier.isModification) {
+                                        navigate(`/paiement?modificationId=${dossier._id}`, { state: { dossier } });
+                                      } else if (dossier.isFermeture) {
+                                        navigate(`/paiement-fermeture/${dossier._id}`, { state: { dossier } });
+                                      } else {
+                                        navigate(`/paiement?dossierId=${dossier._id}`, { state: { dossier } });
+                                      }
+                                    }
+                                  }}
+                                  className={`px-3 py-1.5 border rounded-lg flex items-center text-sm transition-colors 
+                                    ${["payé", "a traité", "en traitement", "traité"].includes(dossier.statut)
+                                      ? "border-gray-300 text-gray-400 bg-gray-100 cursor-not-allowed"
+                                      : "border-gray-300 text-gray-700 hover:bg-gray-50"}`}
+                                >
+                                  <FiCreditCard className="mr-1.5" size={14} /> Paiement
+                                </button>
+
+                                <input
+                                  type="file"
+                                  multiple
+                                  hidden
+                                  ref={(ref) => (fileInputsRef.current[dossier._id] = ref)}
+                                  onChange={(e) => handleFileUpload(dossier, e.target.files)}
+                                />
+                               <button
+  onClick={() => fileInputsRef.current[dossier._id]?.click()}
+  disabled={["traité", "en attente"].includes(dossier.statut)}
+  className={`px-3 py-1.5 border rounded-lg flex items-center text-sm transition-colors 
+    ${["traité", "en attente"].includes(dossier.statut)
+      ? "border-gray-300 text-gray-400 bg-gray-100 cursor-not-allowed"
+      : "border-gray-300 text-gray-700 hover:bg-gray-50"}`}
+>
+  <FiPlus className="mr-1.5" size={14} /> Ajouter fichier
+</button>
+
+                                <button
+                                  onClick={() => {
+                                    if (dossier.isModification) {
+                                      navigate(`/modification/${dossier._id}`);
+                                    } else if (dossier.isFermeture) {
+                                      navigate(`/fermeture/${dossier._id}`);
+                                    } else {
+                                      navigate(`/dossier/${dossier._id}`);
+                                    }
+                                  }}
+                                  className="px-3 py-1.5 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors shadow-sm flex items-center text-sm"
+                                >
+                                  <FiEye className="mr-1.5" size={14} /> Détails
+                                </button>
+                              </div>
                             </div>
-                          </div>
-
-                          <div className="mt-6 pt-6 border-t border-gray-200 flex flex-wrap justify-end gap-3">
-                            <button
-                              disabled={["payé", "a traité", "en traitement", "traité"].includes(dossier.statut)}
-                              onClick={() => {
-                                if (!["payé", "a traité", "en traitement", "traité"].includes(dossier.statut)) {
-                                  if (dossier.isModification) {
-                                    navigate(`/paiement?modificationId=${dossier._id}`, { state: { dossier } });
-                                  } else if (dossier.isFermeture) {
-                                    navigate(`/paiement-fermeture/${dossier._id}`, { state: { dossier } }); // Changed to navigate to paiement-fermeture
-                                  } else {
-                                    navigate(`/paiement?dossierId=${dossier._id}`, { state: { dossier } });
-                                  }
-                                }
-                              }}
-                              className={`px-4 py-2 border rounded-lg flex items-center transition-colors 
-                                ${["payé", "a traité", "en traitement", "traité"].includes(dossier.statut)
-                                  ? "border-gray-300 text-gray-900 bg-gray-200 cursor-not-allowed"
-                                  : "border-gray-300 text-gray-900 hover:bg-gray-50"}`}
-                            >
-                              <FiCreditCard  className="mr-2" /> Payé
-                    
-                            </button>
-                            <input
-                              type="file"
-                              multiple
-                              hidden
-                              ref={(ref) => (fileInputsRef.current[dossier._id] = ref)}
-                              onChange={(e) => handleFileUpload(dossier, e.target.files)}
-                            />
-                            <button
-                              disabled={dossier.statut === 'en attente'}
-                              onClick={() => {
-                                if (dossier.statut !== 'en attente') {
-                                  let type;
-                                  if (dossier.isModification) {
-                                    type = 'modification';
-                                  } else if (dossier.isFermeture) {
-                                    type = 'fermeture';
-                                  } else {
-                                    type = 'dossier';
-                                  }
-                                  navigate(`/form-entreprise/${dossier._id}?type=${type}`);
-                                }
-                              }}
-                              className={`px-4 py-2 border text-sm rounded-lg flex items-center transition-colors
-                                ${dossier.statut === 'en attente'
-                                  ? 'border-gray-300 text-gray-400 bg-gray-100 cursor-not-allowed'
-                                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
-                            >
-                              <FiEdit className="mr-2" /> Ajouter des documents
-                            </button>
-
-                            <button className="px-4 py-2 bg-primary text-gray-800 rounded-lg hover:bg-primary-dark transition-colors shadow-sm flex items-center">
-                              <FiEye className="mr-2" /> Voir
-                              
-                            </button>
                           </div>
                         </div>
                       </motion.div>

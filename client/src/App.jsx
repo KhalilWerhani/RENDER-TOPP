@@ -135,7 +135,7 @@ const App = () => {
 
 
         {/* 🔓 Public routes */}
-        <Route path="/" element={<Navigate to="/home" replace />} />
+        
         <Route path="/" element={<Home />} />
         <Route path='/home' element={<Home />} />
         <Route path='/login' element={<Login />} />
