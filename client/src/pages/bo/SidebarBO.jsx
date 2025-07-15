@@ -41,7 +41,7 @@ const SidebarBO = ({ isOpen, setIsOpen }) => {
             <li onClick={() => navigate("/bo/dashboard")} className={`${baseClass} ${isActive("/bo/dashboard") ? activeClass : inactiveClass}`}>
               <FaChartBar size={18} /> Tableau de bord
             </li>
-            <li onClick={() => navigate("/bo/entreprise")} className={`${baseClass} ${isActive("/bo/entreprise") ? activeClass : inactiveClass}`}>
+            <li onClick={() => navigate("/bo/boentreprises")} className={`${baseClass} ${isActive("/bo/boentreprises") ? activeClass : inactiveClass}`}>
               <IoIosBusiness size={18} /> Entreprise
             </li>
             <li onClick={() => navigate("/bo/dossiers")} className={`${baseClass} ${isActive("/bo/dossiers") ? activeClass : inactiveClass}`}>

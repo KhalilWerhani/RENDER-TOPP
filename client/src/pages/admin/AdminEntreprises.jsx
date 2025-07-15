@@ -25,7 +25,8 @@ import {
   Pagination,
   Avatar,
   InputAdornment,
-  Divider
+  Divider,
+  Collapse
 } from '@mui/material';
 import {
   Visibility as VisibilityIcon,
@@ -37,7 +38,9 @@ import {
   CalendarToday as CalendarIcon,
   Search as SearchIcon,
   FilterList as FilterIcon,
-  Refresh as RefreshIcon
+  Refresh as RefreshIcon,
+  KeyboardArrowDown as KeyboardArrowDownIcon,
+  KeyboardArrowUp as KeyboardArrowUpIcon
 } from '@mui/icons-material';
 import axios from 'axios';
 import { format } from 'date-fns';
@@ -46,6 +49,8 @@ import FileViewerModal from '../../components/FileViewerModal';
 
 const AdminEntreprises = () => {
   const [dossiers, setDossiers] = useState([]);
+  const [groupedDossiers, setGroupedDossiers] = useState({});
+  const [expandedRows, setExpandedRows] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedDossier, setSelectedDossier] = useState(null);
@@ -131,10 +136,23 @@ const AdminEntreprises = () => {
       
       setDossiers(response.data.dossiers || []);
       setTotalDossiers(response.data.total || 0);
+      
+      // Group dossiers by SIRET or enterprise name
+      const grouped = {};
+      response.data.dossiers.forEach(dossier => {
+        const key = dossier.siret || dossier.entreprise?.siret || dossier.nomEntreprise || dossier.entreprise?.nom;
+        if (!grouped[key]) {
+          grouped[key] = [];
+        }
+        grouped[key].push(dossier);
+      });
+      setGroupedDossiers(grouped);
+      
     } catch (err) {
       console.error('Error fetching dossiers:', err);
       setError(err.message);
       setDossiers([]);
+      setGroupedDossiers({});
     } finally {
       setLoading(false);
     }
@@ -143,6 +161,13 @@ const AdminEntreprises = () => {
   useEffect(() => {
     fetchDossiers();
   }, [page, pageSize, statusFilter, typeFilter, searchQuery]);
+
+  const toggleRowExpand = (key) => {
+    setExpandedRows(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
 
   const handleViewFiles = async (dossier) => {
     try {
@@ -340,6 +365,12 @@ const AdminEntreprises = () => {
     fetchDossiers();
   };
 
+  const isCreatedByTopJuridique = (dossier) => {
+    // Implement your logic to determine if created by TOP-JURIDIQUE
+    // For example, check if the user email contains a certain domain
+    return dossier.user?.email?.includes('top-juridique') || false;
+  };
+
   return (
     <Box sx={{ p: { xs: 1, md: 3 }, backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
       {/* Header Section */}
@@ -479,7 +510,7 @@ const AdminEntreprises = () => {
             Réessayer
           </Button>
         </Paper>
-      ) : dossiers.length === 0 ? (
+      ) : Object.keys(groupedDossiers).length === 0 ? (
         <Paper sx={{ p: 3, textAlign: 'center' }}>
           <Typography variant="h6" color="textSecondary">
             Aucun dossier trouvé
@@ -500,152 +531,225 @@ const AdminEntreprises = () => {
               <Table>
                 <TableHead sx={{ backgroundColor: '#1e3a8a' }}>
                   <TableRow>
-                    <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Client</TableCell>
+                    <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Logo</TableCell>
                     <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Entreprise</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Code</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Type</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Statut</TableCell>
                     <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>SIRET</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Crée le</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>Actions</TableCell>
+                    <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Domiciliation</TableCell>
+                    <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {dossiers.map((dossier) => (
-                    <TableRow 
-                      key={dossier._id}
-                      hover
-                      sx={{ 
-                        '&:nth-of-type(odd)': { backgroundColor: '#f8f9fa' },
-                        '&:last-child td': { borderBottom: 0 }
-                      }}
-                    >
-                      <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Avatar sx={{ 
-                            width: 32, 
-                            height: 32,
-                            backgroundColor: '#f4d47c',
-                            color: '#1e3a8a'
-                          }}>
-                            {dossier.user?.name?.charAt(0) || 'U'}
-                          </Avatar>
-                          <Box>
-                            <Typography variant="body2" fontWeight="medium">
-                              {dossier.user?.name || 'Non spécifié'}
-                            </Typography>
-                            <Typography variant="caption" color="textSecondary">
-                              {dossier.user?.email || 'Non spécifié'}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2" fontWeight="medium">
-                          {dossier.nomEntreprise || dossier.entreprise?.nom || 'Non spécifié'}
-                        </Typography>
-                        <Typography variant="caption" color="textSecondary">
-                          {dossier.domiciliation || dossier.entreprise?.adresse || 'Non renseigné'}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Chip 
-                          label={dossier.codeDossier} 
-                          size="small"
+                  {Object.keys(groupedDossiers).map((key) => {
+                    const enterpriseDossiers = groupedDossiers[key];
+                    const firstDossier = enterpriseDossiers[0];
+                    const isExpanded = expandedRows[key] || false;
+                    const hasSiret = firstDossier.siret || firstDossier.entreprise?.siret;
+                    
+                    return (
+                      <React.Fragment key={key}>
+                        <TableRow 
+                          hover
                           sx={{ 
-                            backgroundColor: '#f0f4f8',
-                            color: '#1e3a8a',
-                            fontWeight: 'bold'
+                            '&:nth-of-type(odd)': { backgroundColor: '#f8f9fa' },
+                            cursor: 'pointer'
                           }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={getDetailedType(dossier)}
-                          color={getTypeColor(dossier.questionnaire?.entrepriseType || dossier.typeFermeture || dossier.type)}
-                          size="small"
-                          sx={{ fontWeight: 'medium' }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={statusConfig[dossier.statut]?.label || dossier.statut}
-                          color={getStatusColor(dossier.statut)}
-                          size="small"
-                          icon={statusConfig[dossier.statut]?.icon}
-                          sx={{ fontWeight: 'medium' }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">
-                          {dossier.siret || dossier.entreprise?.siret || 'Non renseigné'}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <CalendarIcon fontSize="small" color="action" />
-                          <Typography variant="body2">
-                            {format(new Date(dossier.createdAt), 'dd/MM/yyyy', { locale: fr })}
-                          </Typography>
-                        </Box>
-                      </TableCell>
-                      <TableCell sx={{ textAlign: 'center' }}>
-                        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
-                          <Tooltip title="Voir les fichiers">
-                            <IconButton
-                              color="primary"
-                              onClick={() => handleViewFiles(dossier)}
-                              size="small"
-                              sx={{
-                                backgroundColor: '#e6f0ff',
-                                '&:hover': {
-                                  backgroundColor: '#d0e0ff'
-                                }
-                              }}
-                            >
-                              <VisibilityIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
+                          onClick={() => toggleRowExpand(key)}
+                        >
+                           <TableCell>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              {isExpanded ? (
+                                <KeyboardArrowUpIcon />
+                              ) : (
+                                <KeyboardArrowDownIcon />
+                              )}
+                              <Typography variant="body2" fontWeight="medium">
+                                {firstDossier.Logo || firstDossier.Logo?.nom || 'Non spécifié'}
+                              </Typography>
+                            </Box>
+                          </TableCell>
+                          <TableCell>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              {isExpanded ? (
+                                <KeyboardArrowUpIcon />
+                              ) : (
+                                <KeyboardArrowDownIcon />
+                              )}
+                              <Typography variant="body2" fontWeight="medium">
+                                {firstDossier.nomEntreprise || firstDossier.entreprise?.nom || 'Non spécifié'}
+                              </Typography>
+                            </Box>
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant="body2">
+                              {hasSiret || 'Non renseigné'}
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant="body2">
+                              {firstDossier.domiciliation || firstDossier.entreprise?.adresse || 'Non renseigné'}
+                            </Typography>
+                          </TableCell>
                           
-                          {dossier.statut !== 'traité' && (
-                            <>
-                              <Tooltip title="Marquer comme traité">
+                          <TableCell>
+                            <Box sx={{ display: 'flex', gap: 1 }}>
+                              <Tooltip title="Voir les dossiers">
                                 <IconButton
-                                  color="success"
-                                  onClick={() => handleStatusUpdateClick(dossier)}
-                                  size="small"
-                                  sx={{
-                                    backgroundColor: '#e6f7e6',
-                                    '&:hover': {
-                                      backgroundColor: '#d0f0d0'
-                                    }
+                                  color="primary"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleRowExpand(key);
                                   }}
+                                  size="small"
                                 >
-                                  <CheckCircleIcon fontSize="small" />
+                                  <VisibilityIcon fontSize="small" />
                                 </IconButton>
                               </Tooltip>
-                              
-                              <Tooltip title="Ajouter SIRET/Domiciliation">
-                                <IconButton
-                                  color="secondary"
-                                  onClick={() => handleAddSiret(dossier)}
-                                  size="small"
-                                  sx={{
-                                    backgroundColor: '#f0e6ff',
-                                    '&:hover': {
-                                      backgroundColor: '#e0d0ff'
-                                    }
-                                  }}
-                                >
-                                  <AddIcon fontSize="small" />
-                                </IconButton>
-                              </Tooltip>
-                            </>
-                          )}
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                            </Box>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={5}>
+                            <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+                              <Box sx={{ margin: 1 }}>
+                                <Typography variant="h6" gutterBottom component="div">
+                                  Dossiers associés
+                                </Typography>
+                                <Table size="small">
+                                  <TableHead>
+                                    <TableRow>
+                                      <TableCell>Client</TableCell>
+                                      <TableCell>Code</TableCell>
+                                      <TableCell>Type</TableCell>
+                                       <TableCell>BoAffecte</TableCell>
+                                      <TableCell>Statut</TableCell>
+                                      <TableCell>Crée le</TableCell>
+                                      <TableCell>Actions</TableCell>
+                                    </TableRow>
+                                  </TableHead>
+                                  <TableBody>
+                                    {enterpriseDossiers.map((dossier) => (
+                                      <TableRow key={dossier._id}>
+                                        <TableCell>
+                                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            <Avatar sx={{ 
+                                              width: 32, 
+                                              height: 32,
+                                              backgroundColor: '#f4d47c',
+                                              color: '#1e3a8a'
+                                            }}>
+                                              {dossier.user?.name?.charAt(0) || 'U'}
+                                            </Avatar>
+                                            <Box>
+                                              <Typography variant="body2" fontWeight="medium">
+                                                {dossier.user?.name || 'Non spécifié'}
+                                              </Typography>
+                                              <Typography variant="caption" color="textSecondary">
+                                                {dossier.user?.email || 'Non spécifié'}
+                                              </Typography>
+                                            </Box>
+                                          </Box>
+                                        </TableCell>
+                                        <TableCell>
+                                          <Chip 
+                                            label={dossier.codeDossier} 
+                                            size="small"
+                                            sx={{ 
+                                              backgroundColor: '#f0f4f8',
+                                              color: '#1e3a8a',
+                                              fontWeight: 'bold'
+                                            }}
+                                          />
+                                        </TableCell>
+                                        <TableCell>
+                                          <Chip
+                                            label={getDetailedType(dossier)}
+                                            color={getTypeColor(dossier.questionnaire?.entrepriseType || dossier.typeFermeture || dossier.type)}
+                                            size="small"
+                                            sx={{ fontWeight: 'medium' }}
+                                          />
+                                        </TableCell>
+                                    <TableCell>
+  {dossier.boAffecte ? (
+    <Chip
+      label={dossier.boAffecte.name}
+      color="primary"
+      size="small"
+      sx={{ fontWeight: 'medium' }}
+    />
+  ) : (
+    <Chip
+      label="Non affecté"
+      color="default"
+      size="small"
+      sx={{ fontWeight: 'medium' }}
+    />
+  )}
+</TableCell>
+                                        <TableCell>
+                                          <Chip
+                                            label={statusConfig[dossier.statut]?.label || dossier.statut}
+                                            color={getStatusColor(dossier.statut)}
+                                            size="small"
+                                            icon={statusConfig[dossier.statut]?.icon}
+                                            sx={{ fontWeight: 'medium' }}
+                                          />
+                                        </TableCell>
+                                        <TableCell>
+                                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            <CalendarIcon fontSize="small" color="action" />
+                                            <Typography variant="body2">
+                                              {format(new Date(dossier.createdAt), 'dd/MM/yyyy', { locale: fr })}
+                                            </Typography>
+                                          </Box>
+                                        </TableCell>
+                                        <TableCell>
+                                          <Box sx={{ display: 'flex', gap: 1 }}>
+                                            <Tooltip title="Voir les fichiers">
+                                              <IconButton
+                                                color="primary"
+                                                onClick={() => handleViewFiles(dossier)}
+                                                size="small"
+                                              >
+                                                <VisibilityIcon fontSize="small" />
+                                              </IconButton>
+                                            </Tooltip>
+                                            
+                                            {dossier.statut !== 'traité' && (
+                                              <>
+                                                <Tooltip title="Marquer comme traité">
+                                                  <IconButton
+                                                    color="success"
+                                                    onClick={() => handleStatusUpdateClick(dossier)}
+                                                    size="small"
+                                                  >
+                                                    <CheckCircleIcon fontSize="small" />
+                                                  </IconButton>
+                                                </Tooltip>
+                                                
+                                                <Tooltip title="Ajouter SIRET/Domiciliation">
+                                                  <IconButton
+                                                    color="secondary"
+                                                    onClick={() => handleAddSiret(dossier)}
+                                                    size="small"
+                                                  >
+                                                    <AddIcon fontSize="small" />
+                                                  </IconButton>
+                                                </Tooltip>
+                                              </>
+                                            )}
+                                          </Box>
+                                        </TableCell>
+                                      </TableRow>
+                                    ))}
+                                  </TableBody>
+                                </Table>
+                              </Box>
+                            </Collapse>
+                          </TableCell>
+                        </TableRow>
+                      </React.Fragment>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -661,7 +765,7 @@ const AdminEntreprises = () => {
           }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Typography variant="body2" color="textSecondary">
-                Dossiers par page:
+                Entreprises par page:
               </Typography>
               <Select
                 value={pageSize}
@@ -696,7 +800,7 @@ const AdminEntreprises = () => {
             />
             
             <Typography variant="body2" color="textSecondary">
-              {`${(page - 1) * pageSize + 1}-${Math.min(page * pageSize, totalDossiers)} sur ${totalDossiers} dossiers`}
+              {`${(page - 1) * pageSize + 1}-${Math.min(page * pageSize, totalDossiers)} sur ${totalDossiers} entreprises`}
             </Typography>
           </Box>
         </>

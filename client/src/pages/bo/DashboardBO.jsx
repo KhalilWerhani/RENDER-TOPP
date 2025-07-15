@@ -138,7 +138,7 @@ const DashboardBO = () => {
     traites = 0
   } = statusCounts;
 
-  const { totalDossiers = 0, totalModifications = 0 } = dossierCounts;
+  const { totalDossiers = 0, totalModifications = 0 , totalFermetures = 0  } = dossierCounts;
 
   const dossiersRecents = Array.isArray(stats.dossiersRecents) ? stats.dossiersRecents : [];
 
@@ -173,37 +173,37 @@ const DashboardBO = () => {
 
   // Main metrics cards
   const metrics = [
-    {
-      title: "Dossiers Création",
-      value: totalDossiers,
-      icon: <FiFilePlus className="w-6 h-6" />,
-      color: "bg-indigo-500",
-      trend: totalCreation > 0 ? "up" : "down",
-      percentage: totalCreation > 0 ? 
-        `+${Math.round((totalCreation / totalDossiers) * 100)}%` : 
-        `${Math.round((totalCreation / totalDossiers) * 100)}%`,
-      description: "Nouveaux dossiers créés"
-    },
-    {
-      title: "Dossiers Modification",
-      value: totalModifications,
-      icon: <FiEdit2 className="w-6 h-6" />,
-      color: "bg-emerald-500",
-      trend: totalModification > 0 ? "up" : "down",
-      percentage: totalModification > 0 ? 
-        `+${Math.round((totalModification / totalModifications) * 100)}%` : 
-        `${Math.round((totalModification / totalModifications) * 100)}%`,
-      description: "Dossiers modifiés"
-    },
-    {
-      title: "Dossiers Fermeture",
-      value: totalFermeture,
-      icon: <FiArchive className="w-6 h-6" />,
-      color: "bg-amber-500",
-      trend: "neutral",
-      description: "Dossiers clôturés"
-    }
-  ];
+  {
+    title: "Dossiers Création",
+    value: totalDossiers,
+    icon: <FiFilePlus className="w-6 h-6" />,
+    color: "bg-indigo-500",
+    trend: totalCreation > 0 ? "up" : "down",
+    percentage: totalCreation > 0 ? 
+      `+${Math.round((totalCreation / totalDossiers) * 100)}%` : 
+      `${Math.round((totalCreation / totalDossiers) * 100)}%`,
+    description: "Nouveaux dossiers créés"
+  },
+  {
+    title: "Dossiers Modification",
+    value: totalModifications,
+    icon: <FiEdit2 className="w-6 h-6" />,
+    color: "bg-emerald-500",
+    trend: totalModification > 0 ? "up" : "down",
+    percentage: totalModification > 0 ? 
+      `+${Math.round((totalModification / totalModifications) * 100)}%` : 
+      `${Math.round((totalModification / totalModifications) * 100)}%`,
+    description: "Dossiers modifiés"
+  },
+  {
+    title: "Dossiers Fermeture",
+    value: totalFermetures,  // Changed from totalFermeture to totalFermetures
+    icon: <FiArchive className="w-6 h-6" />,
+    color: "bg-amber-500",
+    trend: "neutral",
+    description: "Dossiers clôturés"
+  }
+];
 
   // Status metrics
   const statusMetrics = [

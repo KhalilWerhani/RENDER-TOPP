@@ -113,6 +113,7 @@ import RadiationAutoEntrepreneur from './pages/Gerer-Entreprises/RadiationAutoEn
 import SearchPage from './pages/admin/SearchPage';
 import AdminEntreprises from './pages/admin/AdminEntreprises';
 import UserEntreprise from './pages/user/UserEntreprise';
+import BoEntreprise from './pages/bo/BoEntreprise';
 
 
 
@@ -267,8 +268,7 @@ const App = () => {
             <Route path="uploadingdocbo" element={<UploadDocument />} />
             <Route path="receiveddocbo" element={<ReceivedDocuments />} />
             <Route path="envoyer-document" element={<UploadDocumentWrapper />} />
-
-
+            <Route path="boentreprises" element={<BoEntreprise />} />
             <Route path="/bo/conversations" element={<BOConversations />} />
             <Route path="/bo/messages/:userId" element={<BOMessages />} />
 
@@ -308,11 +308,6 @@ const App = () => {
           <Route path="/fermer-entreprise" element={<FermerEntreprise />} />
           <Route path='/formulaire/radiationautoentrepreneur' element={<RadiationAutoEntrepreneur />}/>
           <Route path='/formulaire/bilan' element={<Bilan />}/>
-
-
-          
-
-
           <Route path='/docs' element={<FormEntreprise />} />
           <Route path="/user/conversations" element={<UserConversations />} />
           <Route path="/user/messages" element={<UserMessages />} />

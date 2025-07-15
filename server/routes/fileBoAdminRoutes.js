@@ -9,13 +9,23 @@ const router = express.Router();
 
 // Upload document for BO/Admin
 router.post('/upload', upload.single('file'), async (req, res) => {
-  const { userId, dossierId, typeDossier, destinataireId } = req.body;
+ // In your backend route
+if (!req.file) {
+  return res.status(400).json({ message: 'No file uploaded' });
+}
 
-  if (!userId || !dossierId || !typeDossier || !destinataireId) {
-    return res.status(400).json({ 
-      message: 'Missing data (userId, dossierId, typeDossier, destinataireId)' 
-    });
-  }
+const { userId, dossierId, typeDossier, destinataireId } = req.body;
+if (!userId || !dossierId || !typeDossier || !destinataireId) {
+  return res.status(400).json({ 
+    message: 'Missing required fields',
+    details: {
+      userId: !userId,
+      dossierId: !dossierId,
+      typeDossier: !typeDossier,
+      destinataireId: !destinataireId
+    }
+  });
+}
 
   try {
     // Create new document
