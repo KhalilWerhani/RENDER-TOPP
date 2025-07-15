@@ -184,8 +184,8 @@ const Paiement = () => {
       };
 
     const updateUrl = modificationId 
-  ? `${backendUrl}/api/dossiers/modifications/${modificationId}/update-status` 
-  : `${backendUrl}/api/dossier/update-statut/${dossierId}`;
+  ? `${backendUrl}/api/modification/${modificationId}/update-status` 
+  : `${backendUrl}/api/update-statut/${dossierId}`;
 
 
 await axios.put(

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState  } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ModalEditBO from "./ModalEditBO";
 import ModalChangePasswordBO from './ModalChangePasswordBO';
@@ -7,6 +7,7 @@ import { FiArrowLeft, FiMail, FiPhone, FiMapPin, FiCreditCard, FiKey, FiCalendar
 import { MdOutlineVerified } from 'react-icons/md';
 import { RiPassportLine } from 'react-icons/ri';
 import { IoPersonCircleOutline } from 'react-icons/io5';
+
 
 const BOFiche = () => {
   const { id } = useParams();

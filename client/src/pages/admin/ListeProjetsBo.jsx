@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState , useContext } from "react";
 import axios from "axios";
 import {
   FaFolderOpen,
@@ -16,6 +16,7 @@ import {
 import { RiFolderReceivedFill } from "react-icons/ri";
 import { BsFolderCheck, BsFolderSymlink } from "react-icons/bs";
 import { assets } from "../../assets/assets";
+import { AppContent } from "../../context/AppContext";
 
 const ListeProjetsBo = () => {
   const { boId } = useParams();

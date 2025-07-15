@@ -37,12 +37,13 @@ router.post('/upload-document-modification',
 );
 
 
-router.get('/modifications/:id', async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const modification = await DossierModification.findById(req.params.id)
       .populate('user', 'name email')           // récupère name et email du client
       .populate('boAffecte', 'name email')
-      .populate('fichiers' ,  'filename url');
+      .populate('fichiers' ,  'filename url')
+      .populate('fichiersbo');
          // récupère name et email du BO
     if (!modification) return res.status(404).json({ message: "Modification non trouvée" });
     res.status(200).json(modification);

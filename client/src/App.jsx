@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route , Navigate  } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
 
@@ -71,7 +71,7 @@ import TransformationSarlEnSas from './pages/Gerer-Entreprises/TransformationSar
 import TransformationSasEnSarl from './pages/Gerer-Entreprises/TransformationSasEnSarl';
 import FermerSociete from './pages/Gerer-Entreprises/FermerSociete';
 import PageModificationWrapper from './components/PageModificationWrapper';
-
+import CentreDaide from './pages/CentreDaide';
 
 import DashboardUser from './pages/user/DashboardUser';
 import FormSas from './pages/Type-Entreprises/FormSas';
@@ -113,6 +113,7 @@ import RadiationAutoEntrepreneur from './pages/Gerer-Entreprises/RadiationAutoEn
 import SearchPage from './pages/admin/SearchPage';
 import AdminEntreprises from './pages/admin/AdminEntreprises';
 import UserEntreprise from './pages/user/UserEntreprise';
+import BoEntreprise from './pages/bo/BoEntreprise';
 
 
 
@@ -135,8 +136,10 @@ const App = () => {
 
 
         {/* 🔓 Public routes */}
+        
+        <Route path="/" element={<Home />} />
+        <Route path='/home' element={<Home />} />
         <Route path='/login' element={<Login />} />
-        <Route path='/' element={<Home />} />
         <Route path='/email-verify' element={<EmailVerify />} />
         <Route path='/reset-password' element={<ResetPassword />} />
         <Route path='/form-project' element={<FormProject />} />
@@ -265,8 +268,7 @@ const App = () => {
             <Route path="uploadingdocbo" element={<UploadDocument />} />
             <Route path="receiveddocbo" element={<ReceivedDocuments />} />
             <Route path="envoyer-document" element={<UploadDocumentWrapper />} />
-
-
+            <Route path="boentreprises" element={<BoEntreprise />} />
             <Route path="/bo/conversations" element={<BOConversations />} />
             <Route path="/bo/messages/:userId" element={<BOMessages />} />
 
@@ -306,11 +308,6 @@ const App = () => {
           <Route path="/fermer-entreprise" element={<FermerEntreprise />} />
           <Route path='/formulaire/radiationautoentrepreneur' element={<RadiationAutoEntrepreneur />}/>
           <Route path='/formulaire/bilan' element={<Bilan />}/>
-
-
-          
-
-
           <Route path='/docs' element={<FormEntreprise />} />
           <Route path="/user/conversations" element={<UserConversations />} />
           <Route path="/user/messages" element={<UserMessages />} />
@@ -348,6 +345,10 @@ const App = () => {
             <Route path="/dashboard/uploadingdoc" element={<UploadDocument />} />
             <Route path="/dashboard/documentsrece" element={<ReceivedDocuments />} />
             <Route path="/dashboard/userentreprise" element={<UserEntreprise />} />
+            <Route path="/dashboard/centredaide" element={<CentreDaide />} />
+
+
+            
 
             
 

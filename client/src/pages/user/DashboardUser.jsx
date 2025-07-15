@@ -23,6 +23,7 @@ const DashboardUser = () => {
   const [stats, setStats] = useState({
     dossiersTraites: 0,
     dossiersATraiter: 0,
+     dossiersEnTraitement: 0,
     documents: 0,
     documentsReceived: 0,
     activiteRecent: [
@@ -80,6 +81,7 @@ const DashboardUser = () => {
           setStats({
             dossiersTraites: data.dossiersTraites ?? 0,
             dossiersATraiter: data.dossiersATraiter ?? 0,
+            dossiersEnTraitement: data.dossiersEnTraitement ?? 0, // NEW
             documents: data.documentsUploaded ?? 0,
             documentsReceived: data.documentsReceived ?? 0,
             activiteRecent: data.activiteRecent ?? []
@@ -93,7 +95,7 @@ const DashboardUser = () => {
     const fetchDemarches = async () => {
   try {
     const { data } = await axios.get(`${backendUrl}/api/user/data`, { withCredentials: true });
-    const userId = data?.userData?.id;
+    const userId = data?.userData?.id || data?.userData?._id;
     const res = await axios.get(`${backendUrl}/api/progress/user/${userId}`);
 
     // Ensure res.data is an array before setting it
@@ -235,7 +237,7 @@ const DashboardUser = () => {
     try {
       await axios.post(`${backendUrl}/api/feedback/rating`, {
         rating,
-        userId: userData?.id
+        userId: userData?.id || userData?._id
       }, { withCredentials: true });
       toast.success("Merci pour votre évaluation !");
       setHasRated(true);
@@ -300,7 +302,7 @@ const DashboardUser = () => {
           date: selectedDate,
           time: selectedTime,
           expertId: expert?._id,
-          userId: userData?.id,
+          userId: userData?.id || userData?._id,
           name: appointmentDetails.name,
           email: appointmentDetails.email,
           subject: appointmentDetails.subject,
@@ -601,76 +603,96 @@ const DashboardUser = () => {
 
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Bonjour, {userData?.name}</h1>
-            <p className="text-gray-500 mt-1">Aperçu de vos activités et démarches</p>
-          </div>
-          <div className="mt-4 md:mt-0">
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
-              {new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-            </span>
-          </div>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between bg-white shadow-md rounded-lg p-6">
+  <div>
+    <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
+      Bonjour, <span className="text-blue-800">{userData?.name}</span>
+    </h1>
+    <p className="text-gray-600 mt-2 text-lg">
+      Aperçu de vos activités et démarches
+    </p>
+  </div>
+  <div className="mt-5 md:mt-0">
+    <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-indigo-100 text-indigo-800 shadow-sm select-none">
+      {new Date().toLocaleDateString('fr-FR', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })}
+    </span>
+  </div>
         </div>
+
 
         {/* Key Metrics */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-            <div className="flex items-center">
-              <div className="p-3 rounded-lg bg-indigo-50 text-indigo-600 mr-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-500">Dossiers traités</p>
-                <p className="text-2xl font-semibold text-gray-900">{stats.dossiersTraites}</p>
-              </div>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+  {/* Traités */}
+  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+    <div className="flex items-center">
+      <div className="p-3 rounded-lg bg-indigo-50 text-indigo-600 mr-4">
+        {/* icon */}
+      </div>
+      <div>
+        <p className="text-sm font-medium text-gray-500">Dossiers traités</p>
+        <p className="text-2xl font-semibold text-gray-900">{stats.dossiersTraites}</p>
+      </div>
+    </div>
+  </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-            <div className="flex items-center">
-              <div className="p-3 rounded-lg bg-green-50 text-green-600 mr-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-500">Dossiers à traiter</p>
-                <p className="text-2xl font-semibold text-gray-900">{stats.dossiersATraiter}</p>
-              </div>
-            </div>
-          </div>
+  {/* À traiter */}
+  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+    <div className="flex items-center">
+      <div className="p-3 rounded-lg bg-green-50 text-green-600 mr-4">
+        {/* icon */}
+      </div>
+      <div>
+        <p className="text-sm font-medium text-gray-500">Dossiers à traiter</p>
+        <p className="text-2xl font-semibold text-gray-900">{stats.dossiersATraiter}</p>
+      </div>
+    </div>
+  </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-            <div className="flex items-center">
-              <div className="p-3 rounded-lg bg-amber-50 text-amber-600 mr-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-500">Documents envoyés</p>
-                <p className="text-2xl font-semibold text-gray-900">{stats.documents}</p>
-              </div>
-            </div>
-          </div>
+  {/* En traitement */}
+  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+    <div className="flex items-center">
+      <div className="p-3 rounded-lg bg-yellow-50 text-yellow-600 mr-4">
+        {/* icon */}
+      </div>
+      <div>
+        <p className="text-sm font-medium text-gray-500">Dossiers en traitement</p>
+        <p className="text-2xl font-semibold text-gray-900">{stats.dossiersEnTraitement}</p>
+      </div>
+    </div>
+  </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-            <div className="flex items-center">
-              <div className="p-3 rounded-lg bg-purple-50 text-purple-600 mr-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-500">Documents reçus</p>
-                <p className="text-2xl font-semibold text-gray-900">{stats.documentsReceived}</p>
-              </div>
-            </div>
-          </div>
-        </div>
+  {/* Documents envoyés */}
+  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+    <div className="flex items-center">
+      <div className="p-3 rounded-lg bg-amber-50 text-amber-600 mr-4">
+        {/* icon */}
+      </div>
+      <div>
+        <p className="text-sm font-medium text-gray-500">Documents envoyés</p>
+        <p className="text-2xl font-semibold text-gray-900">{stats.documents}</p>
+      </div>
+    </div>
+  </div>
+
+  {/* Documents reçus */}
+  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+    <div className="flex items-center">
+      <div className="p-3 rounded-lg bg-purple-50 text-purple-600 mr-4">
+        {/* icon */}
+      </div>
+      <div>
+        <p className="text-sm font-medium text-gray-500">Documents reçus</p>
+        <p className="text-2xl font-semibold text-gray-900">{stats.documentsReceived}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 
         {/* Expert Card */}
         {expertLoading ? (
@@ -872,55 +894,7 @@ const DashboardUser = () => {
           )}
         </div>
 
-
-
-        {/* Expert Card */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <div className="flex flex-col md:flex-row items-center">
-            <div className="md:w-1/4 flex justify-center mb-4 md:mb-0">
-              <img
-                src={assets.person_icon}
-                alt="Expert"
-                className="w-32 h-32 rounded-full border-4 border-indigo-100"
-              />
-            </div>
-            <div className="md:w-3/4 md:pl-8 text-center md:text-left">
-              <h2 className="text-xl font-semibold text-gray-800">Jean Dupont</h2>
-              <p className="text-indigo-700 mt-2 text-lg">
-                Expert en création d'entreprise
-              </p>
-              <p className="text-gray-600 mt-2">
-                Disponible pour vous accompagner dans toutes vos démarches administratives et juridiques.
-              </p>
-              <div className="mt-4 flex flex-col sm:flex-row justify-center md:justify-start space-y-2 sm:space-y-0 sm:space-x-4">
-                <a
-                  href="tel:+33123456789"
-                  className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                  </svg>
-                  +33 1 23 45 67 89
-                </a>
-                <button
-                  onClick={() => navigate('/dashboard/rendez-vous')}
-                  className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  Prendre rendez-vous
-                </button>
-                <button
-                  onClick={handleContactAdmin}
-                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                >
-                  Contacter l’administrateur
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+       
 
       </div>
     </div>

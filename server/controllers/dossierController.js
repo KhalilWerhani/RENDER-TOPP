@@ -62,14 +62,17 @@ export const getAllProject = async (req, res) => {
     const [dossiers, modifications, fermetures] = await Promise.all([
       Dossier.find({ user: userId })
         .populate("fichiers")
+        .populate("fichiersbo")
         .populate("boAffecte", "name email")
         .sort({ createdAt: -1 }),
       DossierModification.find({ user: userId })
         .populate("fichiers")
+        .populate("fichiersbo")
         .populate("boAffecte", "name email")
         .sort({ createdAt: -1 }),
       DossierFermeture.find({ user: userId })
         .populate("fichiers")
+        .populate("fichiersbo")
         .populate("boAffecte", "name email")
         .sort({ createdAt: -1 })
     ]);
@@ -155,6 +158,8 @@ export const getDossierCreationById = async (req, res) => {
       .populate('user', 'name email')  // Ensure this matches your User model
       .populate('boAffecte', 'name email ') // Note: 'boAffecte' spelling must match schema
       .populate('fichiers')
+      .populate('fichiersbo')
+      
       .lean(); // Convert to plain JS object
 
       

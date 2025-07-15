@@ -179,9 +179,9 @@ const isFermeture = type === 'fermeture';  // <-- Add this line
       try {
         let endpoint;
 if (isModification) {
-  endpoint = `${backendUrl}/api/dossiers/modifications/${id}`;
+  endpoint = `${backendUrl}/api/modification/${id}`;
 } else if (isFermeture) {
-  endpoint = `${backendUrl}/api/dossiers/fermetures/${id}`;  // <-- Fermeture endpoint
+  endpoint = `${backendUrl}/api/fermeture/${id}`;  // <-- Fermeture endpoint
 } else {
   endpoint = `${backendUrl}/api/dossiers/${id}`;
 }
@@ -233,7 +233,7 @@ const handleUpload = async (e) => {
   const toastId = toast.loading("Téléversement du document en cours...");
   try {
     setDownloadInProgress(true);
-    const res = await axios.post('http://localhost:5173/api/files/upload', formData);
+    const res = await axios.post(`${backendUrl}/api/files/upload`, formData);
 
     toast.update(toastId, {
       render: "Document téléversé avec succès!",
@@ -247,9 +247,9 @@ const handleUpload = async (e) => {
     if (uploadedFiles.length === 0) {
       let updateEndpoint;
       if (isModification) {
-        updateEndpoint = `${backendUrl}/api/dossiers/modifications/${id}/update-status`;
+        updateEndpoint = `${backendUrl}/api/modification/${id}/update-status`;
       } else if (isFermeture) {
-        updateEndpoint = `${backendUrl}/api/dossiers/fermetures/${id}/update-status`;
+        updateEndpoint = `${backendUrl}/api/fermeture/${id}/update-status`;
       } else {
         updateEndpoint = `${backendUrl}/api/dossiers/${id}/status`;
       }
@@ -315,7 +315,7 @@ const handleUpload = async (e) => {
       <Navbar />
       
       {/* Simple Stepper */}
-      <div className="max-w-4xl mt-20 mx-auto px-4 pt-6">
+      <div className="max-w-4xl mt-20 mx-auto px-4 pt-6 ">
         <Stepper currentStep={3} />
       </div>
 

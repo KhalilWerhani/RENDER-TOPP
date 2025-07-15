@@ -30,7 +30,14 @@ const dossierSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'File',
     },
+    
   ],
+  fichiersbo: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Document',
+    },
+    ],
   etatAvancement: {
     type: String,
     enum: ['formulaire', 'paiement', 'documents', 'traitement', 'terminé'],

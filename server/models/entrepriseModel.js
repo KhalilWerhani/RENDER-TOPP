@@ -1,21 +1,58 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const entrepriseSchema = new mongoose.Schema({
-  entrepriseType: String,
-  profession: String,
-  startDate: String,
-  domiciliation: String,
-  workingAlone: String,
-  entrepriseName: String,
-  secteurActivite: String,
-  autoEntrepreneur: String,
-  userId: {
+  // Basic info (from the entreprise object in other models)
+  nomEntreprise: { type: String, required: true },
+  siret: { 
+    type: String, 
+    required: true,
+    unique: true,
+    validate: {
+      validator: function(v) {
+        return /^\d{14}$/.test(v);
+      },
+      message: props => `${props.value} is not a valid SIRET number!`
+    }
+  },
+  domiciliation: { type: String, required: true },
+  logo: { type: String, default: "" },
+  
+  // Tracking modifications and fermetures
+  modifications: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: "user",
-    required: true
+    ref: 'DossierModification'
+  }],
+  fermetures: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'DossierFermeture'
+  }],
+  dossiers: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Dossier'
+  }],
+  
+  // Metadata
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user'
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  lastModified: {
+    type: Date,
+    default: Date.now
   }
+}, {
+  timestamps: true
 });
 
-const entrepriseModel = mongoose.models.entreprise || mongoose.model('entreprise', entrepriseSchema);
+// Middleware to update lastModified
+entrepriseSchema.pre('save', function(next) {
+  this.lastModified = new Date();
+  next();
+});
 
-export default entrepriseModel;
+const Entreprise = mongoose.models.Entreprise || mongoose.model("Entreprise", entrepriseSchema);
+export default Entreprise;

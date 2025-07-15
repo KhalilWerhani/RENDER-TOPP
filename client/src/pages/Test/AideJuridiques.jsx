@@ -8,7 +8,7 @@ const AidesJuridiques = () => {
   return (
     <div>
         <Navbar/>
-    <section className="bg-blue-100 py-10 px-4 md:px-16" id="aides-juridique">
+    <section className="bg-white py-10 px-4 md:px-16" id="aides-juridique">
       <motion.div
         className="max-w-6xl mt-35 mx-auto flex flex-col md:flex-row items-center gap-8"
         initial={{ opacity: 0, y: 30 }}

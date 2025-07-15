@@ -262,7 +262,7 @@ dossierRouter.put('/dossier/:id/update-status', async (req, res) => {
 });
 
 // ✅ Route : mise à jour du statut d'une modification
-dossierRouter.put('/dossiers/modifications/:id/update-status', async (req, res) => {
+dossierRouter.put('/modification/:id/update-status', async (req, res) => {
   try {
     const modification = await DossierModification.findById(req.params.id);
     if (!modification) return res.status(404).json({ message: "Modification introuvable" });

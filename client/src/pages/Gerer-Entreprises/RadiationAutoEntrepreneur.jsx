@@ -285,7 +285,11 @@ const RadiationAutoEntrepreneur = () => {
           <p className="text-sm text-gray-600 mb-3">
             Notre équipe est disponible pour vous accompagner dans la radiation de votre statut d'auto-entrepreneur.
           </p>
-          <button className="text-sm text-[#f4d47c] font-medium hover:underline">
+           <button
+            onClick={() => navigate('/dashboard/centredaide')}
+            className="text-sm text-[#317ac1] font-medium hover:underline"
+            aria-label="Aller à la page Contactez notre support"
+          >
             Contactez notre support
           </button>
         </div>

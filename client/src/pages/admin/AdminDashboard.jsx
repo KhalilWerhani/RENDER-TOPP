@@ -374,75 +374,99 @@ const AdminDashboard = () => {
 
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="bg-white/80 backdrop-blur-lg p-6 rounded-2xl shadow-sm border border-gray-100/30"
-        >
-          <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 shadow-sm border border-gray-100">
-            {/* Background image container (half width) */}
-            <div className="absolute inset-y-0 left-0 w-2/2 h-6/2">
+  initial={{ opacity: 0, y: -20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.6, ease: "easeOut" }}
+  className="bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-xs border border-gray-100/20"
+>
+  <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-white to-indigo-50 shadow-xs border border-gray-100">
+    
+    {/* Subtle background texture */}
+    <div className="absolute inset-0 opacity-5 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgdmlld0JveD0iMCAwIDYwIDYwIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiM4ODgiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRINmMtMy4zIDAtNi0yLjctNi02VjZjMC0zLjMgMi43LTYgNi02aDMwYzMuMyAwIDYgMi43IDYgNnYyMmMwIDMuMy0yLjcgNi02IDZ6bTE4IDE2SDZjLTMuMyAwLTYtMi43LTYtNlY2YzAtMy4zIDIuNy02IDYtNmg0OGMzLjMgMCA2IDIuNyA2IDZ2MzhjMCAzLjMtMi43IDYtNiA2eiIvPjwvZz48L2c+PC9zdmc+')]"></div>
+
+    {/* Content container */}
+    <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6 p-8">
+      <div className="flex items-center gap-6">
+        {/* Instagram-style profile picture with elegant frame */}
+        <div className="relative group">
+          <div className="absolute -inset-0.5 bg-gradient-to-br from-indigo-400 via-purple-500 to-pink-500 rounded-full blur opacity-80 group-hover:opacity-100 transition-all duration-300 animate-pulse"></div>
+          <div className="relative w-35 h-35 rounded-full p-0.5 z-10">
+            <div className="relative w-full h-full rounded-full overflow-hidden border-4 border-white shadow-lg">
               <img
                 src={assets.dashadmin_img}
-                alt="Admin background"
-                className="w-full h-full object-cover object-center opacity-20"
+                alt="Admin profile"
+                className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10"></div>
-            </div>
-
-            {/* Content container */}
-            <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6 p-6">
-              <div className="flex items-center gap-6">
-                {/* Avatar with elegant shadow and border */}
-                <div className="relative group">
-                  <div className="absolute -inset-1 bg-gradient-to-r from-indigo-400 to-purple-500 rounded-lg blur-sm opacity-75 group-hover:opacity-100 transition duration-200"></div>
-                  <img
-                    src={assets.dashadmin_img}
-                    alt="Admin avatar"
-                    className="relative w-54 h-24 rounded-full object-cover border-4 border-white shadow-md z-10"
-                  />
-                </div>
-
-                <div>
-                  <h1 className="text-2xl md:text-3xl font-bold text-gray-900 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                    Tableau de bord des dossiers
-                  </h1>
-                  <p className="text-indigo-700/90 mt-1 font-medium">Vue d'ensemble complète de vos statistiques</p>
-                </div>
-              </div>
-
-              {/* Right side controls */}
-              <div className="flex flex-col sm:flex-row items-center gap-3">
-
-                <motion.select
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  value={timeRange}
-                  onChange={(e) => setTimeRange(e.target.value)}
-                  className="bg-white/95 border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm backdrop-blur-sm"
-                >
-                  <option value="day">Aujourd'hui</option>
-                  <option value="week">Cette semaine</option>
-                  <option value="month">Ce mois</option>
-                  <option value="year">Cette année</option>
-                </motion.select>
-
-                <motion.span
-                  whileHover={{ scale: 1.02 }}
-                  className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-white/95 text-indigo-800 border border-gray-200 shadow-sm backdrop-blur-sm"
-                >
-                  <Calendar className="mr-2 w-4 h-4 text-indigo-600" />
-                  {new Date().toLocaleDateString('fr-FR', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </motion.span>
-              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/30 to-transparent"></div>
             </div>
           </div>
+          <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-1 shadow-sm border border-gray-100 z-20">
+            <div className="w-5 h-5 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center">
+              <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+            Tableau de bord <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">{userData.name}</span>
+          </h1>
+          <div className="flex items-center mt-2">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+              <svg className="-ml-0.5 mr-1.5 h-2 w-2 text-indigo-500" fill="currentColor" viewBox="0 0 8 8">
+                <circle cx="4" cy="4" r="3" />
+              </svg>
+              Connecté
+            </span>
+            <p className="text-gray-600 ml-3 font-medium">Bienvenue, <span className="text-indigo-600">Administrateur</span></p>
+          </div>
+        </div>
+      </div>
+
+      {/* Right side controls - Enhanced */}
+      <div className="flex flex-col sm:flex-row items-center gap-3">
+        <motion.div
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="relative"
+        >
+          <select
+            value={timeRange}
+            onChange={(e) => setTimeRange(e.target.value)}
+            className="appearance-none bg-white/95 border border-gray-200 rounded-xl pl-4 pr-10 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 shadow-xs backdrop-blur-sm cursor-pointer transition-all duration-200"
+          >
+            <option value="day">Aujourd'hui</option>
+            <option value="week">Cette semaine</option>
+            <option value="month">Ce mois</option>
+            <option value="year">Cette année</option>
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
         </motion.div>
+
+        <motion.div
+          whileHover={{ scale: 1.02 }}
+          className="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-medium bg-white/95 text-gray-700 border border-gray-200 shadow-xs backdrop-blur-sm transition-all duration-200"
+        >
+          <svg className="mr-2 w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          {new Date().toLocaleDateString('fr-FR', {
+            weekday: 'short',
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+          })}
+        </motion.div>
+      </div>
+    </div>
+  </div>
+</motion.div>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

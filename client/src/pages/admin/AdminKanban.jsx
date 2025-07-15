@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState , useContext } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -19,6 +19,7 @@ import {
   FiDownload,
   FiPrinter
 } from "react-icons/fi";
+import { AppContent } from "../../context/AppContext";
 
 // Enhanced status config with refined color palette
 const statusConfig = {

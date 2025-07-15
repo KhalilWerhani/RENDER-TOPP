@@ -65,7 +65,7 @@ const AppointmentScheduler = ({ open, onClose }) => {
         date: selectedDate,
         time: selectedTime,
         expertId: expert?._id,
-        userId: userData?.id,
+        userId: userData?.id || userData?._id,
         ...appointmentDetails
       }, { withCredentials: true });
       

@@ -111,6 +111,12 @@ typeFermeture: {
       ref: 'File',
     },
   ],
+  fichiersbo: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Document',
+      },
+      ],
   
   createdAt: {
     type: Date,

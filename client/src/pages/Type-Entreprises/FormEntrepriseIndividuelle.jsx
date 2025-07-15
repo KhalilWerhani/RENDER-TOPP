@@ -258,7 +258,11 @@ const FormEntrepriseIndividuelle = () => {
           <p className="text-sm text-gray-600 mb-3">
             Nous sommes là pour vous aider à chaque étape de la création de votre entreprise individuelle.
           </p>
-          <button className="text-sm text-[#f4d47c] font-medium hover:underline">
+           <button
+            onClick={() => navigate('/dashboard/centredaide')}
+            className="text-sm text-[#317ac1] font-medium hover:underline"
+            aria-label="Aller à la page Contactez notre support"
+          >
             Contactez notre support
           </button>
         </div>

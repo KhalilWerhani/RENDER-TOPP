@@ -242,6 +242,7 @@ const formatFullDossierData = (dossier, dossierType) => {
     boAffecte: dossier.boAffecte,
     codeDossier: dossier.codeDossier || `DOS-${dossier._id.toString().slice(-6).toUpperCase()}`,
     fichiers: dossier.fichiers || [],
+    fichiersbo: dossier.fichiersbo || [],
     questionnaire: dossier.questionnaire || {},
     entreprise: dossier.entreprise || null,
     siret: dossier.siret || (dossier.entreprise ? dossier.entreprise.siret : null),
@@ -326,6 +327,8 @@ export const getCombinedDossiers = async (req, res) => {
           .populate('user', 'name email')
           .populate('boAffecte', 'name email')
           .populate('fichiers' ,  'filename url')
+          .populate('fichiersbo')
+          .lean()
           .sort({ createdAt: -1 }),
         Model.countDocuments(baseQuery)
       ]);
@@ -347,6 +350,7 @@ export const getCombinedDossiers = async (req, res) => {
         .populate('user', 'name email')
         .populate('boAffecte', 'name email')
         .populate('fichiers', 'filename url')
+        .populate('fichiersbo')
         .sort({ createdAt: -1 }),
       DossierModification.find(baseQuery)
         .skip(skip)
@@ -354,6 +358,7 @@ export const getCombinedDossiers = async (req, res) => {
         .populate('user', 'name email')
         .populate('boAffecte', 'name email')
         .populate('fichiers', 'filename url')
+        .populate('fichiersbo')
         .sort({ createdAt: -1 }),
       DossierFermeture.find(baseQuery)
         .skip(skip)
@@ -361,6 +366,7 @@ export const getCombinedDossiers = async (req, res) => {
         .populate('user', 'name email')
         .populate('boAffecte', 'name email')
         .populate('fichiers', 'filename url')
+        .populate('fichiersbo')
         .sort({ createdAt: -1 }),
       Dossier.countDocuments(baseQuery),
       DossierModification.countDocuments(baseQuery),

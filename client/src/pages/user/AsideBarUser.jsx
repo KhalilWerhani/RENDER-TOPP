@@ -11,7 +11,8 @@ import {
   FaChartLine,
   FaBuilding,
   FaEnvelopeOpenText,
-  FaUserCircle
+  FaUserCircle,
+  FaQuestionCircle 
 } from 'react-icons/fa';
 import { AppContent } from '../../context/AppContext';
 
@@ -24,11 +25,12 @@ const AsideBarUser = ({ isOpen, setIsOpen }) => {
     { icon: <MdDashboard size={18} />, label: 'Tableau de bord', path: '/dashboarduser' },
     { icon: <FaUser size={18} />, label: 'Mon profil', path: '/dashboard/profil' },
     { icon: <FaBuilding size={18} />, label: 'Mes entreprises', path: '/dashboard/userentreprise' },
-    { icon: <FaFileAlt size={18} />, label: 'Documents', path: '/dashboard/documents' },
     { icon: <FaCreditCard size={18} />, label: 'Paiements', path: '/dashboard/paiement/:id' },
-   // { icon: <FaChartLine size={18} />, label: 'Comptabilité', path: '/dashboard/comptabilite' },
     { icon: <FaEnvelopeOpenText size={18} />, label: 'Projets', path: '/dashboard/projets' },
     { icon: <FaFileAlt size={18} />, label: 'Documents Reçus', path: '/dashboard/documentsrece' },
+    { icon: <FaQuestionCircle   size={18} />, label: "Centre d'aide", path: '/dashboard/centredaide' },
+
+    
    // { icon: <FaFileAlt size={18} />, label: 'Messagerie', path: '/dashboard/documentsrece' },
    // { icon: <FaFileAlt size={18} />, label: 'Verifier votre mail', path: '/email-verify' },
   ];

@@ -30,6 +30,7 @@ import adminStatsRouter from "./routes/adminStatsRoutes.js";
 import fileRoutes from "./routes/fileRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
 import leadRoutes from './routes/leadRoutes.js';
+import fileBoAdminRoutes from './routes/fileBoAdminRoutes.js'
 
 // Initialize app
 const app = express();
@@ -39,7 +40,7 @@ dotenv.config();
 const allowedOrigins = [
   'http://localhost:5173',
   process.env.FRONTEND_URL,
-  'https://render-top-juridiquea-6.onrender.com',
+  'https://render-top-juridiquea.onrender.com',
   '*'
 ];
 
@@ -72,14 +73,23 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const port = process.env.PORT || 4005;
 
 // API routes
-app.get('/', (req, res) => res.send("API Working"));
+app.get('/', (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    // In production, redirect to the frontend's homepage
+    res.redirect('/home');
+  } else {
+    // In development, you might want to keep the API message or redirect
+    res.send("API Working - Redirect to homepage in production");
+  }
+});
 app.use('/api/auth', authRouter);
 app.use('/api/user', userRouter);
 app.use('/api/admin', adminRoutes);
+app.use('/api', dossierRouter);
 app.use('/api/admin/stats', adminStatsRouter);
 app.use('/api/entreprise', entrepriseRoutes);
-app.use('/api/dossiers/modifications', modificationRoutes);
-app.use('/api/dossiers/fermetures', fermetureRoutes);
+app.use('/api/modification', modificationRoutes);
+app.use('/api/fermeture', fermetureRoutes);
 app.use('/api/dossier', dossierRouter);
 app.use('/api/dossiers', dossierRouter);
 app.use('/api/notifications', notificationRoutes);
@@ -93,6 +103,8 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/leads', leadRoutes);
 app.use('/api/files', fileRoutes);
+app.use('/api/filesboadmin', fileBoAdminRoutes);
+app.use('/api/progress', demarcheRoutes)
 
 // Serve frontend in production
 if (process.env.NODE_ENV === 'production') {

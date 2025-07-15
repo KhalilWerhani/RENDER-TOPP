@@ -56,7 +56,6 @@ export const getUserById = async (req, res) => {
   }
 };
 
-
 export const getAllUsers = async (req, res) => {
   try {
     const users = await userModel.find({}, "-password"); // Exclude password for safety
@@ -136,21 +135,27 @@ export const getUserStats = async (req, res) => {
     // Compteurs par statut
     const [
       dossiersTraites,
+      dossiersEnTraitement,
       dossiersATraiter,
       modifsTraites,
+      modifsEnTraitement,
       modifsATraiter,
       fermeturesTraites,
-      fermeturesATraiter
+      fermeturesATraiter,
+      fermeturesEnTraitement
     ] = await Promise.all([
       Dossier.countDocuments({ user: userId, statut: 'traité' }),
+      Dossier.countDocuments({ user: userId, statut: 'en traitement' }),
       Dossier.countDocuments({ user: userId, statut: 'a traité' }),
       DossierModification.countDocuments({ user: userId, statut: 'traité' }),
+      DossierModification.countDocuments({ user: userId, statut: 'en traitement' }),
       DossierModification.countDocuments({ user: userId, statut: 'a traité' }),
       DossierFermeture.countDocuments({ user: userId, statut: 'traité' }),
-      DossierFermeture.countDocuments({ user: userId, statut: 'a traité' })
-    ]);
+      DossierFermeture.countDocuments({ user: userId, statut: 'a traité' }),
+      DossierFermeture.countDocuments({ user: userId, statut: 'en traitement' })
 
-    // Documents reçus
+    ]);
+        // Documents reçus
     const documentsReceived = await Document.countDocuments({ destinataire: userId });
 
     // Compter tous les documents envoyés
@@ -204,6 +209,7 @@ export const getUserStats = async (req, res) => {
       success: true,
       dossiersTraites: dossiersTraites + modifsTraites + fermeturesTraites,
       dossiersATraiter: dossiersATraiter + modifsATraiter + fermeturesATraiter,
+      dossiersEnTraitement: dossiersEnTraitement + modifsEnTraitement + fermeturesEnTraitement,
       documentsUploaded,
       documentsReceived,
       activiteRecent
@@ -316,20 +322,20 @@ export const getDossierFiles = async (req, res) => {
     let dossier = await Dossier.findOne({ 
       _id: id, 
       user: userId 
-    }).populate('fichiers');
+    }).populate('fichiers',  'filename url');
 
     if (!dossier) {
       dossier = await DossierModification.findOne({ 
         _id: id, 
         user: userId 
-      }).populate('fichiers');
+      }).populate('fichiers',  'filename url');
     }
 
     if (!dossier) {
       dossier = await DossierFermeture.findOne({ 
         _id: id, 
         user: userId 
-      }).populate('fichiers');
+      }).populate('fichiers','filename url');
     }
 
     if (!dossier) {

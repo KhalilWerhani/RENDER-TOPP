@@ -136,7 +136,8 @@ export const searchDossiers = async (req, res) => {
           }
         })
         .populate('boAffecte', 'name email')
-        .populate('fichiers', 'filename url'),
+        .populate('fichiers', 'filename url')
+        .populate('fichiersbo'),
         
       
       DossierFermeture.find(searchConditions)

@@ -25,10 +25,13 @@ const Navbar = ({ isScrolled }) => {
   const [filteredResults, setFilteredResults] = useState([]);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [notifications, setNotifications] = useState([]);
-  const [showNotifDropdown, setShowNotifDropdown] = useState(false); // 👈 AJOUTE-LA ICI
+  const [showNotifDropdown, setShowNotifDropdown] = useState(false);
 
-
+  // Refs for dropdowns to detect outside clicks
   const dropdownRef = useRef(null);
+  const userMenuRef = useRef(null);
+  const notifDropdownRef = useRef(null);
+  const searchBarRef = useRef(null);
 
   const mockSearchResults = [
     "Créez votre entreprise de services aux entreprises",
@@ -49,6 +52,7 @@ const Navbar = ({ isScrolled }) => {
       setFilteredResults([]);
     }
   }, [searchQuery]);
+
   useEffect(() => {
     if (!userData?.id) return;
 
@@ -81,7 +85,7 @@ const Navbar = ({ isScrolled }) => {
     fetchNotifications();
   }, [userData?.id, backendUrl]);
 
-  //notification 
+  // Notification handlers
   const handleNotificationClick = async (notif) => {
     try {
       await axios.put(`${backendUrl}/api/notifications/read/${notif._id}`);
@@ -97,6 +101,7 @@ const Navbar = ({ isScrolled }) => {
       toast.error("Erreur lors de la lecture de la notification");
     }
   };
+
   const markAllAsRead = async () => {
     try {
       if (!userData?.id) return;
@@ -108,7 +113,6 @@ const Navbar = ({ isScrolled }) => {
       toast.error("Erreur lors du marquage des notifications");
     }
   };
-
 
   const logout = async () => {
     try {
@@ -125,13 +129,68 @@ const Navbar = ({ isScrolled }) => {
     }
   };
 
-  const toggleDropdown = (section) => {
-    setOpenDropdown(prev => (prev === section ? '' : section));
+  // Toggle handlers that close other dropdowns when opening one
+  const toggleUserMenu = () => {
+    setShowUserMenu(prev => {
+      const newState = !prev;
+      if (newState) {
+        setShowNotifDropdown(false);
+        setShowSearchBar(false);
+        setOpenDropdown('');
+      }
+      return newState;
+    });
   };
 
+  const toggleNotifDropdown = () => {
+    setShowNotifDropdown(prev => {
+      const newState = !prev;
+      if (newState) {
+        setShowUserMenu(false);
+        setShowSearchBar(false);
+        setOpenDropdown('');
+      }
+      return newState;
+    });
+  };
+
+  const toggleSearchBar = () => {
+    setShowSearchBar(prev => {
+      const newState = !prev;
+      if (newState) {
+        setShowUserMenu(false);
+        setShowNotifDropdown(false);
+        setOpenDropdown('');
+      }
+      return newState;
+    });
+  };
+
+  const toggleDropdown = (section) => {
+    setOpenDropdown(prev => {
+      const newState = (prev === section ? '' : section);
+      if (newState) {
+        // Close other dropdowns
+        setShowUserMenu(false);
+        setShowNotifDropdown(false);
+        setShowSearchBar(false);
+      }
+      return newState;
+    });
+  };
+
+  // Global click handler to close dropdowns if clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (
+        (userMenuRef.current && !userMenuRef.current.contains(event.target)) &&
+        (notifDropdownRef.current && !notifDropdownRef.current.contains(event.target)) &&
+        (searchBarRef.current && !searchBarRef.current.contains(event.target)) &&
+        (dropdownRef.current && !dropdownRef.current.contains(event.target))
+      ) {
+        setShowUserMenu(false);
+        setShowNotifDropdown(false);
+        setShowSearchBar(false);
         setOpenDropdown('');
       }
     };
@@ -153,9 +212,8 @@ const Navbar = ({ isScrolled }) => {
           onClick={() => navigate('/')}
           src={assets.logotopjuridique}
           alt="Logo"
-          className="w-43 sm:w-48 md:w-52 lg:w-60 pl-2 sm:pl-4 md:pl-6 lg:pl-10 cursor-pointer"
+          className="w-43 sm:w-38 md:w-42 lg:w-50 pl-2 sm:pl-4 md:pl-6 lg:pl-10 cursor-pointer"
         />
-
 
         <div className='hidden lg:flex items-center gap-6'>
           {navItems.map(({ label, id }) => (
@@ -179,9 +237,9 @@ const Navbar = ({ isScrolled }) => {
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Connexion ou Avatar User */}
           {userData ? (
-            <div className="relative">
+            <div className="relative" ref={userMenuRef}>
               <button
-                onClick={() => setShowUserMenu(prev => !prev)}
+                onClick={toggleUserMenu}
                 className="w-10 h-10 flex items-center justify-center border-2 border-blue-600 text-blue-600 bg-white rounded-md hover:bg-blue-50 transition"
               >
                 {userData.name[0]?.toUpperCase()}
@@ -221,8 +279,8 @@ const Navbar = ({ isScrolled }) => {
 
           {/* Icône notification client */}
           {userData && (
-            <div className="relative">
-              <button onClick={() => setShowNotifDropdown(prev => !prev)} className="relative w-10 h-10 flex items-center justify-center border-2 border-blue-600 rounded-md hover:bg-blue-50">
+            <div className="relative" ref={notifDropdownRef}>
+              <button onClick={toggleNotifDropdown} className="relative w-10 h-10 flex items-center justify-center border-2 border-blue-600 rounded-md hover:bg-blue-50">
                 <FaRegBell className="text-xl text-blue-800" />
                 {notifications.some(n => !n.isRead) && (
                   <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
@@ -280,12 +338,14 @@ const Navbar = ({ isScrolled }) => {
           )}
 
           {/* Bouton Recherche */}
-          <button
-            onClick={() => setShowSearchBar(prev => !prev)}
-            className="w-10 h-10 flex items-center justify-center border-2 border-blue-600  rounded-md hover:bg-blue-50 transition"
-          >
-            <FiSearch className="text-blue-600 text-lg" />
-          </button>
+          <div ref={searchBarRef}>
+            <button
+              onClick={toggleSearchBar}
+              className="w-10 h-10 flex items-center justify-center border-2 border-blue-600  rounded-md hover:bg-blue-50 transition"
+            >
+              <FiSearch className="text-blue-600 text-lg" />
+            </button>
+          </div>
 
           {/* Téléphone (affiché uniquement sur sm+) */}
           <a
@@ -295,7 +355,6 @@ const Navbar = ({ isScrolled }) => {
             <FaPhoneAlt className="text-base" />
             <span className="hidden sm:inline">01 76 39 00 60</span>
           </a>
-
 
           {/* Menu mobile (hamburger) */}
           <button className='lg:hidden p-2' onClick={() => setMobileMenuOpen(prev => !prev)}>
@@ -314,12 +373,13 @@ const Navbar = ({ isScrolled }) => {
 
           {/* SEARCH DROPDOWN */}
           <div
+            ref={searchBarRef}
             className="fixed top-[64px] right-0 w-full max-w-md h-full bg-white rounded-xl bg-center shadow-lg z-40 border-l border-gray-300 px-6 py-4 overflow-y-auto transition-all duration-300"
             style={{
               backgroundImage: `url(${assets.illustrawresearch})`,
-              backgroundSize: '120%',               // 👈 contrôle la taille ici
-              backgroundRepeat: 'no-repeat',       // évite la répétition
-              backgroundPosition: 'center ',    // positionne l’image
+              backgroundSize: '120%',
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'center',
               backgroundColor: 'rgba(255, 255, 255, 0.2)',
               backgroundBlendMode: 'overlay',
               backdropFilter: 'blur(2px)',
@@ -360,7 +420,6 @@ const Navbar = ({ isScrolled }) => {
           </div>
         </>
       )}
-
 
       {mobileMenuOpen && (
         <div className="lg:hidden bg-white px-6 py-4 border-t">
